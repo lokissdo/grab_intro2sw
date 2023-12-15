@@ -5,10 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:grab/presentations/widget/social_login_buttons.dart';
 import 'package:grab/utils/constants/themes.dart';
-
-// import 'package:grabb/controllers/auth_controller.dart';
-// import 'package:grabb/controllers/input_validators.dart';
-// import 'package:grabb/utils/social_buttons.dart';
+import 'package:grab/utils/helpers/auth_controller.dart';
+import 'package:grab/utils/helpers/input_validators.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -135,18 +133,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // if (InputValidator.validateField(
-                        //         "Name", nameController.text.trim()) &&
-                        //     InputValidator.validateField(
-                        //         "Email", emailController.text.trim())) {
-                        //   if (InputValidator.validatePassword(
-                        //       passwordController.text,
-                        //       cnfPassController.text)) {
-                        //     AuthController.instance.registerUser(
-                        //         emailController.text.trim(),
-                        //         passwordController.text.trim());
-                        //   }
-                        // }
+                        if (InputValidator.validateField(
+                                "Name", nameController.text.trim()) &&
+                            InputValidator.validateField(
+                                "Email", emailController.text.trim())) {
+                          if (InputValidator.validatePassword(
+                              passwordController.text,
+                              cnfPassController.text)) {
+                            AuthController.instance.registerUser(
+                                emailController.text.trim(),
+                                passwordController.text.trim());
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         primary: MyTheme.splash,
