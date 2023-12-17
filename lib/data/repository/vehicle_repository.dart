@@ -34,7 +34,7 @@ class VehicleRepository {
     final querySnapshot = await firestore
         .collection(VehicleModel.collectionName)
         .where("status", isEqualTo: VehicleStatus.active.name)
-        .where("isDeletedAt", isNull: true)
+        .where("isDeleted", isEqualTo: false)
         .get();
     return querySnapshot.docs
         .map((doc) => VehicleModel.fromJson(doc.data()))
@@ -63,6 +63,6 @@ class VehicleRepository {
 
   Future<void> markVehicleDeleted(String id) async {
     final docRef = firestore.collection(VehicleModel.collectionName).doc(id);
-    await docRef.update({ "isDeletedAt": FieldValue.serverTimestamp() });
+    await docRef.update({ "updatedAt": FieldValue.serverTimestamp(), "isDeleted":true });
   }
 }

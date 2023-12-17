@@ -18,7 +18,7 @@ class VehicleModel {
     required this.yearManufactured,
     required this.createdAt,
     required this.updatedAt,
-    this.isDeletedAt,
+    this.isDeleted = false,
   });
 
   String id;
@@ -31,7 +31,7 @@ class VehicleModel {
   int yearManufactured;
   Timestamp createdAt;
   Timestamp updatedAt;
-  Timestamp? isDeletedAt; // Nullable to account for vehicles not marked as deleted
+  bool isDeleted; 
 
   static VehicleModel fromJson(Map<String, dynamic> map) {
     return VehicleModel(
@@ -45,7 +45,7 @@ class VehicleModel {
       yearManufactured: map["yearManufactured"] as int,
       createdAt: map["createdAt"] as Timestamp,
       updatedAt: map["updatedAt"] as Timestamp,
-      isDeletedAt: map["isDeletedAt"] as Timestamp?,
+      isDeleted: map["isDeleted"],
     );
   }
 
@@ -61,7 +61,7 @@ class VehicleModel {
       "yearManufactured": yearManufactured,
       "createdAt": createdAt,
       "updatedAt": updatedAt,
-      "isDeletedAt": isDeletedAt,
+      "isDeleted": isDeleted,
     };
   }
 }

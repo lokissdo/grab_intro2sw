@@ -37,11 +37,6 @@ class RideRepository {
     await docRef.update(ride.toJson());
   }
 
-  /// Delete a ride (soft delete by marking as deleted)
-  Future<void> deleteRide(String id) async {
-    final docRef = _firestore.collection(RideModel.collectionName).doc(id);
-    await docRef.update({'deleted': true}); // Adjust field name if needed
-  }
 
   /// Additional functions related to ride status, filtering, etc. can be added here
 

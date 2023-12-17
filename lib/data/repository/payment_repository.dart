@@ -59,4 +59,5 @@ class PaymentRepository {
     final docRef = firestore.collection(PaymentModel.collectionName).doc(id);
     await docRef.delete();
   }
+  
 }

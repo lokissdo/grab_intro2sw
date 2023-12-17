@@ -23,7 +23,15 @@ class PaymentMethodRepository {
       return null;
     }
   }
-
+Future<List<PaymentMethodModel>> getAvailablePaymentMethods() async {
+    final querySnapshot = await firestore
+        .collection(PaymentMethodModel.collectionName)
+        .where("isDeleted", isEqualTo: false)
+        .get();
+    return querySnapshot.docs
+        .map((doc) => PaymentMethodModel.fromJson(doc.data()))
+        .toList();
+  }
   Future<List<PaymentMethodModel>> getAllPaymentMethods() async {
     final snapshot = await firestore.collection(PaymentMethodModel.collectionName).get();
     return snapshot.docs
