@@ -8,7 +8,7 @@ import 'package:grab/utils/constants/themes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
-
+  static const String routeName = 'splash';
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }

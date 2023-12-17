@@ -182,7 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             passwordController.text.trim());
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

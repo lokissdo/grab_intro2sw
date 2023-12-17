@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
-import 'package:grab/presentations/screens/home_screen.dart';
 import 'package:grab/presentations/screens/splash_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:grab/utils/helpers/auth_controller.dart';

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:grab/presentations/screens/home_screen.dart';
+import 'package:grab/presentations/screens/splash_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
-  HomeScreen.routeName: (context) => const HomeScreen(),
+  SplashScreen.routeName: (context) => const SplashScreen(),
   // LoginScreen.routeName: (context) => LoginScreen(),
- 
 };
