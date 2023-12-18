@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:grab/utils/helpers/auth_controller.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class ProfileHomeScreen extends StatelessWidget {
-  const ProfileHomeScreen({Key? key}) : super(key: key);
+  ProfileHomeScreen({Key? key}) : super(key: key);
+  //current user
+  final AuthController _authController = AuthController.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +141,19 @@ class ProfileHomeScreen extends StatelessWidget {
                 ),
                 onPressed: () {
                   finish(context);
+                },
+              ),
+            ),
+            ListTile(
+              minLeadingWidth: 0,
+              title: Text('Sign out', style: boldTextStyle()),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.logout,
+                  color: Color(0xFF8d9cb2),
+                ),
+                onPressed: () {
+                  _authController.signOut();
                 },
               ),
             ),
