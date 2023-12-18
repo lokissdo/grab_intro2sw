@@ -95,8 +95,10 @@ class AuthController extends GetxController {
         );
       }
     } on FirebaseAuthException catch (e) {
+      print(e);
       getErrorSnackBar("Google Login Failed", e);
     } on PlatformException catch (e) {
+      print(e);
       getErrorSnackBar("Google Login Failed", e);
     }
   }
