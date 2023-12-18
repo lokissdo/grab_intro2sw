@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:grab/data/service/location_service.dart';
 import 'package:location/location.dart';
 
 class MyMap extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MyMapState extends State<MyMap> {
   Location _locationController = new Location();
   LatLng? _currentP = null;
 
+  TextEditingController _searchController = TextEditingController();
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
   @override
@@ -28,24 +30,51 @@ class _MyMapState extends State<MyMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Google map'),
+      ),
       body: _currentP == null
           ? const Center(child: Text('Loading...'))
-          : GoogleMap(
-              onMapCreated: ((GoogleMapController controller) {
-                _mapController.complete(controller);
-              }),
-              initialCameraPosition:
-                  CameraPosition(target: _currentP!, zoom: 15),
-              markers: {
-                Marker(
-                    markerId: MarkerId('_currentLocation'),
-                    icon: BitmapDescriptor.defaultMarker,
-                    position: _currentP!),
-                Marker(
-                    markerId: MarkerId('_destinationLocation'),
-                    icon: BitmapDescriptor.defaultMarker,
-                    position: _destination),
-              },
+          : Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextFormField(
+                      controller: _searchController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(hintText: 'Search location'),
+                      onChanged: (value) {
+                        print(value);
+                      },
+                    )),
+                    IconButton(
+                        onPressed: () {
+                          LocationService().getPlaceId(_searchController.text);
+                        },
+                        icon: Icon(Icons.search))
+                  ],
+                ),
+                Expanded(
+                  child: GoogleMap(
+                    onMapCreated: ((GoogleMapController controller) {
+                      _mapController.complete(controller);
+                    }),
+                    initialCameraPosition:
+                        CameraPosition(target: _currentP!, zoom: 15),
+                    markers: {
+                      Marker(
+                          markerId: MarkerId('_currentLocation'),
+                          icon: BitmapDescriptor.defaultMarker,
+                          position: _currentP!),
+                      Marker(
+                          markerId: MarkerId('_destinationLocation'),
+                          icon: BitmapDescriptor.defaultMarker,
+                          position: _destination),
+                    },
+                  ),
+                ),
+              ],
             ),
     );
   }
