@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:grab/config/injection.dart';
+import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
+import 'package:grab/data/repository/customer_repository.dart';
 import 'package:grab/presentations/screens/home_screen.dart';
 import 'package:grab/presentations/screens/login_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
@@ -14,7 +19,9 @@ class AuthController extends GetxController {
   bool isLoging = false;
   User? get user => _user.value;
   final FirebaseAuth auth = FirebaseAuth.instance;
-
+  final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
+  CustomerModel? customer;
+  DriverModel? driver;
   @override
   void onReady() {
     super.onReady();
@@ -37,12 +44,21 @@ class AuthController extends GetxController {
     });
   }
 
-  void registerUser(email, password) async {
+  void registerUser(email, password, name, phoneNumber) async {
     try {
       isLoging = true;
       update();
       await auth.createUserWithEmailAndPassword(
           email: email, password: password);
+
+      CustomerModel newCustomer = CustomerModel(
+          name: name,
+          id: _user.value!.uid,
+          phoneNumber: phoneNumber,
+          email: email,
+          createdAt: Timestamp.now());
+
+      await cusRepo.createCustomer(newCustomer);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
       Navigator.pushReplacement(
         Get.overlayContext!,
@@ -51,16 +67,23 @@ class AuthController extends GetxController {
     } on FirebaseAuthException catch (e) {
       //define error
       getErrorSnackBar("Account Creating Failed", e);
+    } catch (e) {
+      // Handle other unexpected exceptions during registration
+      print(e);
+      getErrorSnackBar("Unexpected Error", e.toString());
     }
   }
 
-  void login(email, password) async {
+  void login(email, password, ctx) async {
     try {
       isLoging = true;
       update();
       await auth.signInWithEmailAndPassword(email: email, password: password);
+       customer = await cusRepo.readCustomer(_user.value!.uid);
+      // final GlobalState globalState = ctx.read<GlobalState>();
+      // globalState.setCustomer(customer!);
+      // print(globalState.customer!.name);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
-      print("Hêreee");
       Navigator.pushReplacement(
         Get.overlayContext!,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -68,6 +91,10 @@ class AuthController extends GetxController {
     } on FirebaseAuthException catch (e) {
       //define error
       getErrorSnackBar("Login Failed", e);
+    } catch (e) {
+      // Handle other unexpected exceptions during registration
+      print(e);
+      getErrorSnackBar("Unexpected Error", e.toString());
     }
   }
 

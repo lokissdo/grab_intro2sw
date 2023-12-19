@@ -1,6 +1,6 @@
 import 'package:grab/data/repository/customer_repository.dart';
-import 'package:grab/utils/helpers/injection.dart';
+import 'package:grab/config/injection.dart';
 
-class LoginViewModel{
+class HomeController{
 final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
 }  
