@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import 'package:grab/presentations/screens/splash_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:grab/utils/helpers/auth_controller.dart';
+import 'package:grab/utils/helpers/injection.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

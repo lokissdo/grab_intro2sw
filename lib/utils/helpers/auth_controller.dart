@@ -60,6 +60,7 @@ class AuthController extends GetxController {
       update();
       await auth.signInWithEmailAndPassword(email: email, password: password);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
+      print("Hêreee");
       Navigator.pushReplacement(
         Get.overlayContext!,
         MaterialPageRoute(builder: (context) => const HomeScreen()),

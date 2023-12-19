@@ -180,11 +180,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         AuthController.instance.login(
                             emailController.text.trim(),
                             passwordController.text.trim());
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
-                        );
                       },
                       style: ElevatedButton.styleFrom(
                         primary: MyTheme.splash,
