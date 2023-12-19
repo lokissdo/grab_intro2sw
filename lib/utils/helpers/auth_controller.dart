@@ -12,6 +12,7 @@ class AuthController extends GetxController {
   static AuthController instance = Get.find();
   late Rx<User?> _user;
   bool isLoging = false;
+  
   User? get user => _user.value;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -28,7 +29,7 @@ class AuthController extends GetxController {
       if (user == null) {
         isLoging = false;
         update();
-        Get.offAll(() => const LoginScreen());
+        //Get.offAll(() => const LoginScreen());
       } else {
         isLoging = true;
         update();
@@ -150,5 +151,14 @@ class AuthController extends GetxController {
 
   void signOut() async {
     await auth.signOut();
+    //direct to Login Screen
+    Timer(
+         const Duration(seconds: 1),
+         () => Navigator.pushReplacement(
+      Get.overlayContext!,
+      MaterialPageRoute(builder: (context) => const LoginScreen())));
+
+    
+    
   }
 }

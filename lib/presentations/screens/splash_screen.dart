@@ -3,8 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:grab/middlewares/authentication.dart';
+import 'package:grab/presentations/router.dart';
 import 'package:grab/presentations/screens/login_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:grab/utils/helpers/auth_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -20,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
+     
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animation = CurvedAnimation(
@@ -27,11 +33,21 @@ class _SplashScreenState extends State<SplashScreen>
         curve: Curves.bounceOut,
         reverseCurve: Curves.bounceIn);
     _animationController.forward();
-    Timer(
-        const Duration(seconds: 2),
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => const LoginScreen())));
+    //  Timer(
+    //      const Duration(seconds: 2),
+    //      () => Navigator.pushReplacement(
+    //          context, MaterialPageRoute(builder: (_) => const LoginScreen())));
+
+
+    // Add listener to the animation controller
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Get.offNamed('/check-auth');
+      }
+    });
     super.initState();
+   
+
   }
 
   @override
@@ -42,6 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     );
