@@ -7,7 +7,7 @@ import 'package:grab/presentations/screens/home_screen.dart';
 import 'package:grab/presentations/screens/signup_screen.dart';
 import 'package:grab/presentations/widget/social_login_buttons.dart';
 import 'package:grab/utils/constants/themes.dart';
-import 'package:grab/utils/helpers/auth_controller.dart';
+import 'package:grab/controller/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -179,7 +179,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         AuthController.instance.login(
                             emailController.text.trim(),
-                            passwordController.text.trim());
+                            passwordController.text.trim(),
+                            context);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: MyTheme.splash,

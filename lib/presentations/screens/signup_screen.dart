@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:grab/presentations/widget/social_login_buttons.dart';
 import 'package:grab/utils/constants/themes.dart';
-import 'package:grab/utils/helpers/auth_controller.dart';
+import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/utils/helpers/input_validators.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -20,6 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final cnfPassController = TextEditingController();
+  final phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset("assets/icons/splash_icon.svg"),
+              SvgPicture.asset("assets/icons/splash_icon.svg",
+              height: 150,  // Adjust the height as needed
+              width: 150,),
               const SizedBox(
                 height: 20,
               ),
@@ -67,6 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: const TextStyle(color: Colors.black),
                         controller: nameController,
                         decoration: InputDecoration(
+                           contentPadding:const EdgeInsets.symmetric(vertical: 10, horizontal:10 ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide.none,
@@ -82,8 +86,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       padding: const EdgeInsets.only(top: 10),
                       child: TextFormField(
                         style: const TextStyle(color: Colors.black),
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          contentPadding:const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide.none,
+                          ),
+                          hintText: "Phone number",
+                          hintStyle: const TextStyle(color: Colors.black45),
+                          fillColor: MyTheme.greyColor,
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: TextFormField(
+                        style: const TextStyle(color: Colors.black),
                         controller: emailController,
                         decoration: InputDecoration(
+                            contentPadding:const EdgeInsets.symmetric(vertical: 10, horizontal:10 ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide.none,
@@ -102,6 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
+                           contentPadding:const EdgeInsets.symmetric(vertical: 10, horizontal:10 ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide.none,
@@ -120,6 +144,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: cnfPassController,
                         obscureText: true,
                         decoration: InputDecoration(
+                           contentPadding:const EdgeInsets.symmetric(vertical: 10, horizontal:10 ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide.none,
@@ -133,17 +158,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
+                        String name = nameController.text.trim();
+                        String email = emailController.text.trim();
+                        String phoneNumber = phoneController.text;
+                        String password = passwordController.text;
+                        String cnfPassword = cnfPassController.text;
                         if (InputValidator.validateField(
-                                "Name", nameController.text.trim()) &&
+                              "Name", name
+                            ) &&
                             InputValidator.validateField(
-                                "Email", emailController.text.trim())) {
-                          if (InputValidator.validatePassword(
-                              passwordController.text,
-                              cnfPassController.text)) {
-                            AuthController.instance.registerUser(
-                                emailController.text.trim(),
-                                passwordController.text.trim());
-                          }
+                                "Email",email) &&
+                            InputValidator.validateField(
+                                "Phone number", phoneNumber)) {
+                          if (!InputValidator.validatePhoneNumber(
+                             phoneNumber)) return;
+                          if (!InputValidator.validatePassword(
+                              password, cnfPassword)) return;
+                          AuthController.instance.registerUser(
+                           email,
+                            password,
+                            name,
+                            phoneNumber
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(

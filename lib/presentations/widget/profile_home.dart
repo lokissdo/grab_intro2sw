@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:grab/utils/helpers/auth_controller.dart';
+import 'package:grab/controller/auth_controller.dart';
+import 'package:grab/data/model/customer_model.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:provider/provider.dart';
 
 class ProfileHomeScreen extends StatelessWidget {
   ProfileHomeScreen({Key? key}) : super(key: key);
@@ -9,6 +11,8 @@ class ProfileHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CustomerModel? customer = AuthController.instance.customer;
+    print(customer!.id);
     return Drawer(
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -40,12 +44,12 @@ class ProfileHomeScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Đỗ Khải Hưng',
+                              customer!.name,
                               style: boldTextStyle(
                                   color: Colors.white.withOpacity(1), size: 18),
                             ),
                             Text(
-                              '0123456789',
+                              customer.phoneNumber,
                               style: boldTextStyle(
                                 color: Color(0xFFD5D5D5).withOpacity(1),
                               ),

@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/data/repository/customer_repository.dart';
 import 'package:grab/data/repository/driver_repository.dart';
 import 'package:grab/data/repository/payment_method_repository.dart';
@@ -15,9 +17,9 @@ void configureDependencies() async {
     getIt.registerSingleton<DriverRepository>(DriverRepository());
     getIt.registerSingleton<PaymentRepository>(PaymentRepository());
     getIt.registerSingleton<PaymentMethodRepository>(PaymentMethodRepository());
-    getIt.registerSingleton<PaymentMethodRepository>(PaymentMethodRepository());
     getIt.registerSingleton<PromotionRepository>(PromotionRepository());
     getIt.registerSingleton<RideRepository>(RideRepository());
     getIt.registerSingleton<VehicleRepository>(VehicleRepository());
     getIt.registerSingleton<ServiceRepository>(ServiceRepository());
 }
+
