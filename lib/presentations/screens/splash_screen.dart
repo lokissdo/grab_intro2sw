@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:grab/presentations/screens/login_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
 
@@ -27,10 +29,14 @@ class _SplashScreenState extends State<SplashScreen>
         curve: Curves.bounceOut,
         reverseCurve: Curves.bounceIn);
     _animationController.forward();
-    Timer(
-        const Duration(seconds: 2),
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => const LoginScreen())));
+
+
+    // Add listener to the animation controller
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Get.offNamed('/check-auth');
+      }
+    });
     super.initState();
   }
 

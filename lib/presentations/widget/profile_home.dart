@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:grab/controller/auth_controller.dart';
+import 'package:grab/data/model/customer_model.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:provider/provider.dart';
 
 class ProfileHomeScreen extends StatelessWidget {
-  const ProfileHomeScreen({Key? key}) : super(key: key);
+  ProfileHomeScreen({Key? key}) : super(key: key);
+  //current user
+  final AuthController _authController = AuthController.instance;
 
   @override
   Widget build(BuildContext context) {
+    CustomerModel? customer = AuthController.instance.customer;
+    print(customer!.id);
     return Drawer(
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -37,12 +44,12 @@ class ProfileHomeScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Đỗ Khải Hưng',
+                              customer!.name,
                               style: boldTextStyle(
                                   color: Colors.white.withOpacity(1), size: 18),
                             ),
                             Text(
-                              '0123456789',
+                              customer.phoneNumber,
                               style: boldTextStyle(
                                 color: Color(0xFFD5D5D5).withOpacity(1),
                               ),
@@ -138,6 +145,19 @@ class ProfileHomeScreen extends StatelessWidget {
                 ),
                 onPressed: () {
                   finish(context);
+                },
+              ),
+            ),
+            ListTile(
+              minLeadingWidth: 0,
+              title: Text('Sign out', style: boldTextStyle()),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.logout,
+                  color: Color(0xFF8d9cb2),
+                ),
+                onPressed: () {
+                  _authController.signOut();
                 },
               ),
             ),

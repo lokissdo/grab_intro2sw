@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
+import 'package:grab/config/injection.dart';
+import 'package:grab/controller/auth_controller.dart';
+import 'package:grab/presentations/router.dart';
 import 'package:grab/presentations/screens/map_test.dart';
+import 'package:grab/presentations/screens/splash_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
-import 'package:grab/utils/helpers/auth_controller.dart';
 import 'firebase_options.dart';
 
-void main() {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  // Get.put(AuthController());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  configureDependencies();
+  Get.put(AuthController());
   runApp(const MyApp());
 }
 
@@ -23,6 +27,8 @@ class MyApp extends StatelessWidget {
       theme: MyTheme.myLightTheme,
       debugShowCheckedModeBanner: false,
       home: const MyMap(),
+      initialRoute: AppLinks.SPLASH,
+      // getPages: AppRoutes.pages,
     );
   }
 }
