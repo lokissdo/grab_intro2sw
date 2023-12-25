@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       theme: MyTheme.myLightTheme,
       debugShowCheckedModeBanner: false,
-      home: const MyMap(),
+
+      //home: const SplashScreen(),
       initialRoute: AppLinks.SPLASH,
       // getPages: AppRoutes.pages,
     );
