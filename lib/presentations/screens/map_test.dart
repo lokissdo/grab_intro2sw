@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:grab/data/service/location_service.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:grab/controller/map_controller.dart';
 import 'package:location/location.dart';
 
 class MyMap extends StatefulWidget {
@@ -13,14 +14,19 @@ class MyMap extends StatefulWidget {
 }
 
 class _MyMapState extends State<MyMap> {
-  static const LatLng _destination =
-      const LatLng(10.762844436118629, 106.6824853320835);
   Location _locationController = new Location();
   LatLng? _currentP = null;
+  // Hard code for destination because of the API limit
+
+  LatLng _destinationP = LatLng(10.762812503875347, 106.68248372541431);
 
   TextEditingController _searchController = TextEditingController();
+
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
+
+  Map<PolylineId, Polyline> _polylines = {};
+
   @override
   void initState() {
     super.initState();
@@ -40,17 +46,39 @@ class _MyMapState extends State<MyMap> {
                 Row(
                   children: [
                     Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextFormField(
-                      controller: _searchController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(hintText: 'Search location'),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    )),
+                          controller: _searchController,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                              hintText: 'Enter pickup location'),
+                        ),
+                      ),
+                    ),
+                    IconButton(onPressed: () async {}, icon: Icon(Icons.search))
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextFormField(
+                          controller: _searchController,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                              hintText: 'Where you want to go ?'),
+                        ),
+                      ),
+                    ),
                     IconButton(
-                        onPressed: () {
-                          LocationService().getPlaceId(_searchController.text);
+                        onPressed: () async {
+                          MapController()
+                              .getPolylinePoints(_currentP!, _destinationP)
+                              .then((value) {
+                            MapController().generatePolylineFromPoint(value);
+                          });
                         },
                         icon: Icon(Icons.search))
                   ],
@@ -70,8 +98,9 @@ class _MyMapState extends State<MyMap> {
                       Marker(
                           markerId: MarkerId('_destinationLocation'),
                           icon: BitmapDescriptor.defaultMarker,
-                          position: _destination),
+                          position: _destinationP),
                     },
+                    polylines: Set<Polyline>.of(_polylines.values),
                   ),
                 ),
               ],
@@ -107,15 +136,13 @@ class _MyMapState extends State<MyMap> {
       }
     }
 
-    _locationController.onLocationChanged
-        .listen((LocationData currentLocation) {
+    _locationController.getLocation().then((LocationData currentLocation) {
       if (currentLocation.latitude != null &&
           currentLocation.longitude != null) {
         setState(() {
           _currentP =
               LatLng(currentLocation.latitude!, currentLocation.longitude!);
           _cameraToPosition(_currentP!);
-          print(_currentP);
         });
       }
     });
