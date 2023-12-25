@@ -239,6 +239,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           ]),
                       const SizedBox(
                         height: 30,
+                        //a
                       ),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -255,9 +256,11 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                          for (int i = 0; i < paymentMethods.length;i++)
-                            buildCard(i, IconPath.payment[paymentMethods[i].name]!,paymentMethods[i].description),
-                         
+                          for (int i = 0; i < paymentMethods.length; i++)
+                            buildCard(
+                                i,
+                                IconPath.payment[paymentMethods[i].name]!,
+                                paymentMethods[i].description),
                           const SizedBox(
                             height: 10,
                           ),
