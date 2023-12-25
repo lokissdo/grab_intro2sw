@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/socket_controller.dart';
 import 'package:location/location.dart';
+import 'dart:async';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -83,14 +84,14 @@ class _MapScreenState extends State<MapScreen> {
                             MapController()
                                 .generatePolylineFromPoint(value)
                                 .then((polyline) => {
-                                      polyline.points.forEach((element) {
-                                        setState(() {
-                                          _currentP = element;
-                                          _cameraToPosition(_currentP!);
-                                          sc.sendPosition(element);
-                                        });
+                                      setState(() {
+                                        _polylines[polyline.polylineId] =
+                                            polyline;
+                                        _selectedPolylineId =
+                                            polyline.polylineId;
                                       })
                                     });
+                            _cameraToPosition(_destinationP);
                           });
                         },
                         icon: Icon(Icons.search))
@@ -121,9 +122,26 @@ class _MapScreenState extends State<MapScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_selectedPolylineId != null) {
-                        _polylines[_selectedPolylineId]!.points.forEach((p) {
-                          _currentP = p;
-                        });
+                        List<LatLng> points =
+                            _polylines[_selectedPolylineId]!.points;
+
+                        int index = 0;
+
+                        void updateStateWithDelay() {
+                          if (index < points.length) {
+                            _currentP = points[index];
+                            sc.sendPosition(points[index]);
+                            _cameraToPosition(points[index]);
+                            setState(() {});
+
+                            Timer(Duration(seconds: 1), () {
+                              index++;
+                              updateStateWithDelay();
+                            });
+                          }
+                        }
+
+                        updateStateWithDelay();
                       }
                     },
                     child: Container(
