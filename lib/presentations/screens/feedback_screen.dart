@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:grab/presentations/widget/infor_driver_search.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -79,7 +80,7 @@ class _BookingRideScreenState extends State<FeedBackScreen> {
                             SizedBox(
                               width: 50,
                             ),
-                            Expanded(child: ProgressBar()),
+                            Expanded(child: ProgressBar(width:30,height:5)),
                             SizedBox(
                               width: 50,
                             ),
@@ -156,7 +157,7 @@ class _BookingRideScreenState extends State<FeedBackScreen> {
                       ]),
                     ),
                   ))),
-        )
+        ),
       ]),
     ));
   }

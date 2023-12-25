@@ -1,7 +1,14 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grab/config/injection.dart';
+import 'package:grab/controller/ride_booking_controller.dart';
+import 'package:grab/data/model/payment_method_model.dart';
+import 'package:grab/data/repository/payment_method_repository.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/utils/constants/icons.dart';
 
 class BookingRideScreen extends StatefulWidget {
   const BookingRideScreen({Key? key}) : super(key: key);
@@ -11,12 +18,32 @@ class BookingRideScreen extends StatefulWidget {
 }
 
 class _BookingRideScreenState extends State<BookingRideScreen> {
-  int selectedCardIndex = -1;
+  int selectedPayemntMethodIndex = -1;
+  List<PaymentMethodModel> paymentMethods = [];
+  @override
+  void initState() {
+    super.initState();
+    // Use initState to fetch data when the widget is created
+    _loadPaymentMethods();
+  }
+
+  // Asynchronous function to fetch payment methods
+  _loadPaymentMethods() async {
+    RideBookingController rideBookingController = RideBookingController();
+    List<PaymentMethodModel> methods =
+        await rideBookingController.getAllPaymentMethods();
+
+    // Update the state with the fetched payment methods
+    setState(() {
+      paymentMethods = methods;
+    });
+  }
+
   Widget buildCard(int index, String imagePath, String text) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedCardIndex = index;
+          selectedPayemntMethodIndex = index;
         });
       },
       child: Card(
@@ -26,7 +53,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
           borderRadius: BorderRadius.circular(5.0),
           side: BorderSide(
             width: 2.0,
-            color: selectedCardIndex == index
+            color: selectedPayemntMethodIndex == index
                 ? Color.fromARGB(
                     255, 243, 233, 33) // Border color when the card is selected
                 : Color.fromARGB(255, 252, 251, 236),
@@ -42,7 +69,10 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
               height: 70,
             ),
             SizedBox(width: 20),
-            Text(text,style: TextStyle(fontSize: 20),),
+            Text(
+              text,
+              style: TextStyle(fontSize: 20),
+            ),
           ],
         ),
       ),
@@ -57,47 +87,15 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
               margin: const EdgeInsets.all(20.0),
               alignment: const Alignment(0.6, 0.6),
               child: DefaultTextStyle(
-                style:const TextStyle(
+                style: const TextStyle(
                     fontSize: 16, color: Color.fromARGB(255, 66, 66, 66)),
                 child: Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Transform.translate(
-                        offset: const Offset(-20, 0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              constraints: const BoxConstraints(
-                                  minWidth: 48, maxWidth: 48),
-                              icon: const Icon(Icons.arrow_back,
-                                  color: Colors.black),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            const Text('Trở lại'),
-                            Expanded(
-                              child: Center(
-                                child: Container(
-                                  margin: const EdgeInsets.only(
-                                      right:
-                                          50.0), // Adjust the right margin as needed
-                                  child: const Text(
-                                    'Đặt xe',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                     const SizedBox(height: 30),
-                       SizedBox(
+                      NavBar(title: "Đặt xe"),
+                      const SizedBox(height: 30),
+                      SizedBox(
                         height: 130, // Set the desired height for the Row
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -114,7 +112,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                   size: const Size(1, 60),
                                   painter: DashedLineVerticalPainter(),
                                 ),
-                              const  Image(
+                                const Image(
                                   image:
                                       AssetImage('assets/icons/location2.png'),
                                   width: 25,
@@ -171,7 +169,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           ],
                         ),
                       ),
-                     const SizedBox(
+                      const SizedBox(
                         height: 30,
                       ),
                       Card(
@@ -180,12 +178,12 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                                 10.0), // Set the border radius
-                            side:const BorderSide(
+                            side: const BorderSide(
                                 width: 2.0,
                                 color: Color.fromARGB(
                                     255, 255, 255, 47)), // Set the border color
                           ),
-                          child:const Padding(
+                          child: const Padding(
                             padding: EdgeInsets.only(
                                 right: 30, left: 30, top: 10, bottom: 10),
                             child: Row(
@@ -206,7 +204,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               ],
                             ),
                           )),
-                     const Column(
+                      const Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(
@@ -239,10 +237,10 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               ],
                             )
                           ]),
-                    const  SizedBox(
+                      const SizedBox(
                         height: 30,
                       ),
-                     const Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
@@ -254,15 +252,13 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                         const SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
-                          buildCard(0, 'assets/icons/momo.png', 'Momo'),
-                         const SizedBox(
-                            height: 10,
-                          ),
-                          buildCard(1, 'assets/icons/cash.png', 'Tiền mặt'),
-                        const SizedBox(
+                          for (int i = 0; i < paymentMethods.length;i++)
+                            buildCard(i, IconPath.payment[paymentMethods[i].name]!,paymentMethods[i].description),
+                         
+                          const SizedBox(
                             height: 10,
                           ),
                         ],
@@ -271,7 +267,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                         ConfirmButton(onPressed: ()=>{}, text: "Xác nhận chuyến đi")
+                          ConfirmButton(
+                              onPressed: () => {}, text: "Xác nhận chuyến đi")
                         ],
                       ))
                     ],
