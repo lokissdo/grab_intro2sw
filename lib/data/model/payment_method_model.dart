@@ -7,6 +7,7 @@ class PaymentMethodModel {
   PaymentMethodModel({
     required this.id,
     required this.name,
+    required this.description,
     required this.createdAt,
     required this.updatedAt,
     required this.isDeleted,
@@ -14,6 +15,7 @@ class PaymentMethodModel {
 
   String id;
   String name;
+  String description;
   Timestamp createdAt;
   Timestamp updatedAt;
   bool isDeleted;
@@ -22,6 +24,7 @@ class PaymentMethodModel {
     return PaymentMethodModel(
       id: map["id"],
       name: map["name"],
+      description: map["description"],
       createdAt: map["createdAt"] as Timestamp,
       updatedAt: map["updatedAt"] as Timestamp,
       isDeleted: map["isDeleted"] as bool,
@@ -32,6 +35,7 @@ class PaymentMethodModel {
     return {
       "id": id,
       "name": name,
+      "description": description,
       "createdAt": createdAt,
       "updatedAt": updatedAt,
       "isDeleted": isDeleted,
