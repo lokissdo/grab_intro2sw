@@ -6,14 +6,14 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:grab/controller/map_controller.dart';
 import 'package:location/location.dart';
 
-class MyMap extends StatefulWidget {
-  const MyMap({super.key});
+class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
 
   @override
-  State<MyMap> createState() => _MyMapState();
+  State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MyMapState extends State<MyMap> {
+class _MapScreenState extends State<MapScreen> {
   Location _locationController = new Location();
   LatLng? _currentP = null;
   // Hard code for destination because of the API limit
