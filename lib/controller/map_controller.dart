@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:grab/data/mock/polyline.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:grab/utils/constants/key.dart';
+import 'dart:io';
 
 class MapController {
   Future<String> getPlaceId(String address) async {
@@ -55,20 +57,25 @@ class MapController {
       LatLng _currentP, LatLng _destinationP) async {
     List<LatLng> polylineCoordinates = [];
     PolylinePoints polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      MyKey.apiMapKey,
-      PointLatLng(_currentP!.latitude, _currentP!.longitude),
-      PointLatLng(_destinationP.latitude, _destinationP.longitude),
-      travelMode: TravelMode.driving,
-    );
+    try {
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        MyKey.apiMapKey,
+        PointLatLng(_currentP!.latitude, _currentP!.longitude),
+        PointLatLng(_destinationP.latitude, _destinationP.longitude),
+        travelMode: TravelMode.driving,
+      );
 
-    if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    } else {
-      print(result.errorMessage);
+      if (result.points.isNotEmpty) {
+        result.points.forEach((PointLatLng point) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        });
+      } else {
+        print(result.errorMessage);
+      }
+    } catch (e) {
+      return PolylineMock.mockRoutePolyline;
     }
+    writePolylineCoordinatesToFile(polylineCoordinates);
     return polylineCoordinates;
   }
 
@@ -82,4 +89,18 @@ class MapController {
       width: 3,
     );
   }
+}
+
+void writePolylineCoordinatesToFile(List<LatLng> polylineCoordinates) {
+  File file = File('./file.txt');
+  polylineCoordinates.forEach((element) {
+    print(element);
+  });
+  String content = polylineCoordinates.toString();
+  print(content);
+  file
+      .writeAsString(content)
+      .then((value) => print('Polyline coordinates written to file'))
+      .catchError(
+          (error) => print('Failed to write polyline coordinates: $error'));
 }
