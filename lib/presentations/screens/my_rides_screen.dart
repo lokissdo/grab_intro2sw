@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/repository/ride_repository.dart';
@@ -33,7 +34,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   @override
   Widget build(BuildContext context) {
     List<RideModel> completedRides = rideList.where((ride) => ride.status == RideStatus.completed).toList();
-    List<RideModel> upcomingRides = rideList.where((ride) => ride.status == RideStatus.upcoming).toList();
+    List<RideModel> upcomingRides = rideList.where((ride) =>ride.status == RideStatus.waiting || ride.status == RideStatus.moving).toList();
     List<RideModel> canceledRides = rideList.where((ride) => ride.status == RideStatus.cancel).toList();
     final ThemeData _theme = Theme.of(context);
     return Scaffold(

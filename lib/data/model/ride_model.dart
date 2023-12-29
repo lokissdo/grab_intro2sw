@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/data/model/address_model.dart';
 import 'package:grab/data/model/feedback_model.dart';
 
-enum RideStatus { cancel, upcoming, completed }
+enum RideStatus { cancel, waiting, moving, completed }
 
 class RideModel {
   static String collectionName = 'rides';
