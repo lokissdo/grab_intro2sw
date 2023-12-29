@@ -1,13 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grab/data/model/ride_model.dart';
+
 
 class RideCard extends StatelessWidget {
-  @override
+  final RideModel rideModel;
+
+  const RideCard({Key? key, required this.rideModel}) : super(key: key);
+
+  String formatTime(Timestamp time) {
+    int hour = time.toDate().hour;
+    int minute = time.toDate().minute;
+    String formattedMinute = minute < 10 ? '0$minute' : '$minute';
+    String formattedTime = '$hour:$formattedMinute';
+    return formattedTime;
+  }
+ @override
   Widget build(BuildContext context) {
     final ThemeData _theme = Theme.of(context);
+
+    String formattedTime = formatTime(rideModel.startTime);
     return Container(
-      margin: EdgeInsets.only(
-        top: 10.0,
-      ),
+      margin: EdgeInsets.only(top: 10.0),
       child: Card(
         elevation: 0.0,
         child: Container(
@@ -16,23 +30,21 @@ class RideCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                "Today, 10:30 AM",
+                formattedTime,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 20.0),
+              SizedBox(height: 10.0), // Add some space between time and image
+              SizedBox(
                 height: 170.0,
-                color: Colors.red,
+                child: Placeholder(), // Replace with your image or UI representation
               ),
               ListTile(
-                contentPadding: EdgeInsets.only(
-                  left: 0.0,
-                ),
+                contentPadding: EdgeInsets.only(left: 0.0),
                 title: Text(
-                  "TOYOTA CAMRY",
+                  rideModel.serviceId,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -47,10 +59,13 @@ class RideCard extends StatelessWidget {
                     SizedBox(
                       width: 5.0,
                     ),
-                    Text(
-                      "Home - Awolowo Rd.",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        "${rideModel.startLocation.stringName} - ${rideModel.endLocation.stringName}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     )
                   ],
@@ -69,7 +84,7 @@ class RideCard extends StatelessWidget {
                       height: 5.0,
                     ),
                     Text(
-                      "\$45.00",
+                      "\$${rideModel.fare.toStringAsFixed(2)}",
                       style: TextStyle(
                         fontSize: 24.0,
                         color: _theme.primaryColor,

@@ -1,11 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:grab/presentations/widget/ride_cart.dart';
+import 'package:grab/data/model/ride_model.dart';
+import 'package:grab/data/repository/ride_repository.dart';
 import 'package:grab/presentations/widget/ride_carts.dart';
 
 
-class MyRidesScreen extends StatelessWidget {
+class MyRidesScreen extends StatefulWidget {
+  @override
+  _MyRidesScreenState createState() => _MyRidesScreenState();
+}
+
+class _MyRidesScreenState extends State<MyRidesScreen> {
+  List<RideModel> rideList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAllRides(); // Fetch all rides when the screen initializes
+  }
+
+  Future<void> fetchAllRides() async {
+    RideRepository rideRepository = RideRepository();
+    // Fetch all rides available
+    Stream<List<RideModel>> allRidesStream = rideRepository.readRides();
+    // Listen to changes in the stream and update rideList accordingly
+    allRidesStream.listen((List<RideModel> rides) {
+      setState(() {
+        rideList = rides;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<RideModel> completedRides = rideList.where((ride) => ride.status == RideStatus.completed).toList();
+    List<RideModel> upcomingRides = rideList.where((ride) => ride.status == RideStatus.upcoming).toList();
+    List<RideModel> canceledRides = rideList.where((ride) => ride.status == RideStatus.cancel).toList();
     final ThemeData _theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -65,15 +94,9 @@ class MyRidesScreen extends StatelessWidget {
                     Expanded(
                       child: TabBarView(
                         children: <Widget>[
-                          SingleChildScrollView(
-                            child: RideCards(),
-                          ),
-                          Container(
-                            child: RideCard(),
-                          ),
-                          Container(
-                            child: RideCard(),
-                          ),
+                          RideCards(rideList: upcomingRides),
+                          RideCards(rideList: completedRides),
+                          RideCards(rideList: canceledRides),
                         ],
                       ),
                     ),

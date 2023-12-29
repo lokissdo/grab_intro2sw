@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/presentations/router.dart';
-import 'package:grab/presentations/screens/splash_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'firebase_options.dart';
 
@@ -25,8 +24,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       theme: MyTheme.myLightTheme,
       debugShowCheckedModeBanner: false,
-
-      //home: const SplashScreen(),
       initialRoute: AppLinks.SPLASH,
       getPages: AppRoutes.pages,
     );
