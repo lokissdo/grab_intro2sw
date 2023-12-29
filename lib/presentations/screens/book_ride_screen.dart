@@ -25,13 +25,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     super.initState();
     // Use initState to fetch data when the widget is created
     _loadPaymentMethods();
-    PaymentMethodModel a =  PaymentMethodModel(
-      id: "2",
-      name: "name",
-      description: "description",
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      isDeleted: false);
+  
   }
 
   
