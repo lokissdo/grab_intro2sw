@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grab/data/model/address_model.dart';
 import 'package:grab/data/model/feedback_model.dart';
 
 enum RideStatus { init, wait, move, finish }
@@ -22,8 +23,8 @@ class RideModel {
   String customerId;
   String driverId;
   String serviceId;
-  GeoPoint startLocation;
-  GeoPoint endLocation;
+  AddressModel startLocation;
+  AddressModel endLocation;
   Timestamp startTime;
   Timestamp endTime;
   double fare;
@@ -37,8 +38,8 @@ class RideModel {
       customerId: map["customerId"],
       serviceId: map["serviceId"],
       fare: map["fare"] as double,
-      startLocation: map["startLocation"] as GeoPoint,
-      endLocation: map["endLocation"] as GeoPoint,
+      startLocation:AddressModel.fromJson( map["startLocation"]),
+      endLocation:AddressModel.fromJson( map["endLocation"]),
       startTime: map["startTime"] as Timestamp,
       endTime: map["endTime"] as Timestamp,
       status: RideStatus.values.byName(map["status"]),
@@ -54,8 +55,8 @@ class RideModel {
       "driverId": driverId,
       "customerId": customerId,
       "fare": fare,
-      "startLocation": startLocation,
-      "endLocation": endLocation,
+      "startLocation": startLocation.toJson(),
+      "endLocation": endLocation.toJson(),
       "startTime": startTime,
       "endTime": endTime,
       "status":status.name,

@@ -25,8 +25,10 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     super.initState();
     // Use initState to fetch data when the widget is created
     _loadPaymentMethods();
+  
   }
 
+  
   // Asynchronous function to fetch payment methods
   _loadPaymentMethods() async {
     RideBookingController rideBookingController = RideBookingController();
@@ -255,9 +257,11 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                          for (int i = 0; i < paymentMethods.length;i++)
-                            buildCard(i, IconPath.payment[paymentMethods[i].name]!,paymentMethods[i].description),
-                         
+                          for (int i = 0; i < paymentMethods.length; i++)
+                            buildCard(
+                                i,
+                                IconPath.payment[paymentMethods[i].name]!,
+                                paymentMethods[i].description),
                           const SizedBox(
                             height: 10,
                           ),
