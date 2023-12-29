@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:grab/utils/constants/themes.dart';
 
 class ConfirmButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
+  final Color color;
 
   const ConfirmButton({
     Key? key,
     required this.onPressed,
     required this.text,
+    this.color = MyTheme.yellowBtn,
   }) : super(key: key);
 
   @override
@@ -18,7 +21,7 @@ class ConfirmButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        backgroundColor: Color.fromARGB(255, 243, 185, 37),
+        backgroundColor: color,
       ),
       onPressed: onPressed,
       child: Text(
