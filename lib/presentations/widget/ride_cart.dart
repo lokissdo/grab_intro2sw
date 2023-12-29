@@ -15,11 +15,22 @@ class RideCard extends StatelessWidget {
     String formattedTime = '$hour:$formattedMinute';
     return formattedTime;
   }
+
+  String returnMessgae(RideModel rideModel) {
+    String message = "";
+    if (rideModel.status == RideStatus.waiting) {
+      message = "Driver is on the way";
+    } else if (rideModel.status == RideStatus.moving) {
+      message = "Drive picked you up";  
+    }
+    return message;
+  }
  @override
   Widget build(BuildContext context) {
     final ThemeData _theme = Theme.of(context);
 
     String formattedTime = formatTime(rideModel.startTime);
+    String message = returnMessgae(rideModel);
     return Container(
       margin: EdgeInsets.only(top: 10.0),
       child: Card(
@@ -30,7 +41,7 @@ class RideCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                formattedTime,
+                "${formattedTime}  ${message}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0,
