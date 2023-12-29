@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       theme: MyTheme.myLightTheme,
       debugShowCheckedModeBanner: false,
-
       initialRoute: AppLinks.SPLASH,
       // getPages: AppRoutes.pages,
     );
