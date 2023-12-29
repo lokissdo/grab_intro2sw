@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
+import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/payment_method_model.dart';
 import 'package:grab/data/repository/payment_method_repository.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
@@ -9,6 +10,7 @@ import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/utils/constants/icons.dart';
+import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
 
 class FinishRideScreen extends StatefulWidget {
@@ -21,13 +23,24 @@ class FinishRideScreen extends StatefulWidget {
 class _FinishRideScreenState extends State<FinishRideScreen> {
   int selectedPayemntMethodIndex = -1;
   final String CASH_PAYMENT_NAME = 'cash';
-  PaymentMethodModel fakerPaymentData = new PaymentMethodModel(
-      id: "2",
-      name: "momo",
-      description: 'MoMo',
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      isDeleted: false);
+   PaymentMethodModel? fakerPaymentData ;
+    CustomerModel? fakerCustomerData ;
+  @override
+  void initState() {
+    super.initState();
+    fakerPaymentData = new PaymentMethodModel(
+        id: "2",
+        name: "momo",
+        description: 'MoMo',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        isDeleted: false);
+    fakerCustomerData = new CustomerModel(
+        name: "Nguyễn Văn A",
+        id: "213",
+        phoneNumber: "0123456789",
+        email: "1@1");
+  }
 
   Widget buildCard(String imagePath, String text) {
     return Card(
@@ -74,7 +87,22 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      
                       NavBar(title: "Hoàn tất chuyến đi"),
+                       const SizedBox(height: 30),
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            fakerCustomerData?.name ?? "",
+                            style: MyStyles.boldTextStyle,
+                          ),
+                          Text(
+                            fakerCustomerData?.phoneNumber ?? "",
+                            style:MyStyles.boldTextStyle,
+                          )
+                        ],
+                      ),
                       const SizedBox(height: 30),
                       SizedBox(
                         height: 130, // Set the desired height for the Row
@@ -236,9 +264,9 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                            buildCard(
-                                IconPath.payment[fakerPaymentData.name]!,
-                                fakerPaymentData.description),
+                          fakerPaymentData != null  ?
+                          buildCard(IconPath.payment[fakerPaymentData!.name]!,
+                               fakerPaymentData!.description ):Container(),
                           const SizedBox(
                             height: 10,
                           ),
@@ -249,10 +277,15 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {}, text: "Xác nhận hoàn tất chuyến đi"),
-                              SizedBox(height: 10,),
-                               ConfirmButton(
-                              onPressed: () => {}, text: "Báo cáo vấn đề",color: MyTheme.redBtn),
+                              onPressed: () => {},
+                              text: "Xác nhận hoàn tất chuyến đi"),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          ConfirmButton(
+                              onPressed: () => {},
+                              text: "Báo cáo vấn đề",
+                              color: MyTheme.redBtn),
                         ],
                       ))
                     ],

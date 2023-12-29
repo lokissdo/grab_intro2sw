@@ -29,8 +29,7 @@ class MyApp extends StatelessWidget {
       theme: MyTheme.myLightTheme,
       debugShowCheckedModeBanner: false,
 
-      home: const FinishRideScreen(),
-      //initialRoute: AppLinks.SPLASH,
+      initialRoute: AppLinks.SPLASH,
       // getPages: AppRoutes.pages,
     );
   }
