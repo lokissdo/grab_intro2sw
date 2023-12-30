@@ -1,29 +1,34 @@
+
+import 'dart:js_interop';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AddressModel {
-  final String province;
-  final String town;
-  final String address;
-  final String street;
+  final String stringName;
+  final GeoPoint coordinates;
 
   AddressModel({
-    required this.province,
-    required this.town,
-    required this.address,
-    required this.street,
+    required this.stringName,
+    required this.coordinates,
   });
   Map<String, dynamic> toJson() {
-  return {
-    "province": province,
-    "town": town,
-    "address": address,
-    "street": street,
-  };
+    return {
+      "stringName": stringName,
+      "coordinates": {
+        "latitude": coordinates.latitude,
+        "longitude": coordinates.longitude,
+      }
+    };
+  }
+
+  static AddressModel fromJson(Map<String, dynamic> map) {
+    return AddressModel(
+      stringName: map["stringName"],
+      coordinates: GeoPoint(
+        map["coordinates"]["latitude"],
+        map["coordinates"]["longitude"],
+      ),
+    );
+  }
 }
-  static AddressModel  fromJson(Map<String, dynamic> map) {
-  return AddressModel(
-    province: map["province"],
-    town: map["town"],
-    address: map["address"],
-    street: map["street"],
-  );
-}
-}
+
+
