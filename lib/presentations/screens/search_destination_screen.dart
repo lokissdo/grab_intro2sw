@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:grab/controller/map_controller.dart';
+import 'package:grab/data/model/search_place_model.dart';
+import 'package:grab/presentations/screens/book_ride_screen.dart';
+import 'package:grab/state.dart';
+import 'package:grab/utils/constants/type_place.dart';
 import 'package:nb_utils/nb_utils.dart';
-//import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class SearchDestinationceScreen extends StatefulWidget {
   const SearchDestinationceScreen({Key? key}) : super(key: key);
@@ -12,8 +17,33 @@ class SearchDestinationceScreen extends StatefulWidget {
 }
 
 class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
+  late List<SearchPlaceModel> searchedDestinations = [];
+  late List<SearchPlaceModel> searchedPickup = [];
+  late bool isPickupSelected = false;
+  late bool isDestinationSelected = false;
+  final searchDestinationTextController = TextEditingController();
+  final searchPickupTextController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    searchPickupTextController.addListener(() {
+      setState(() {
+        isPickupSelected = false;
+      });
+    });
+
+    searchDestinationTextController.addListener(() {
+      setState(() {
+        isDestinationSelected = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -33,7 +63,7 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
         actions: [
           IconButton(
               onPressed: () {},
-              icon: Icon(
+              icon: const Icon(
                 Icons.map_outlined,
                 color: Colors.black,
                 size: 26,
@@ -47,19 +77,35 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
             Form(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: TextFormField(
-                  onChanged: (value) {
-                    //placeAutocomplete(value);
-                  },
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                      hintText: 'location from',
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: SvgPicture.asset(
-                          "assets/icons/location_from.svg",
-                        ),
-                      )),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: searchPickupTextController,
+                      onChanged: (address) async {
+                        MapController().searchPlaces(address).then((places) => {
+                              setState(() {
+                                searchedPickup = places;
+                                isPickupSelected = true;
+                              })
+                            });
+                      },
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                          hintText: 'Enter pickup location',
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: SvgPicture.asset(
+                              "assets/icons/location_from.svg",
+                            ),
+                          )),
+                    ),
+                    if (searchedPickup.isNotEmpty && isPickupSelected)
+                      ListSearchedPlaces(
+                        searchedPlaces: searchedPickup,
+                        textController: searchPickupTextController,
+                        type: TypePlace.pickup,
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -71,29 +117,96 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
             Form(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: TextFormField(
-                  onChanged: (value) {},
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    hintText: 'location to',
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: SvgPicture.asset(
-                        "assets/icons/location_to.svg",
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: searchDestinationTextController,
+                      onChanged: (address) async {
+                        MapController().searchPlaces(address).then((places) => {
+                              setState(() {
+                                searchedDestinations = places;
+                                isDestinationSelected = true;
+                              })
+                            });
+                      },
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: 'Enter destination',
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: SvgPicture.asset(
+                            "assets/icons/location_to.svg",
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    if (searchedDestinations.isNotEmpty &&
+                        isDestinationSelected)
+                      ListSearchedPlaces(
+                        searchedPlaces: searchedDestinations,
+                        textController: searchDestinationTextController,
+                        type: TypePlace.destination,
+                      ),
+                  ],
                 ),
               ),
             ),
-            const Divider(
-              height: 4,
-              thickness: 4,
-              color: Color(0xFFF8F8F8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BookingRideScreen()));
+              },
+              child: Text('Confirm'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class ListSearchedPlaces extends StatelessWidget {
+  const ListSearchedPlaces({
+    super.key,
+    required this.searchedPlaces,
+    required this.textController,
+    required this.type,
+  });
+
+  final List<SearchPlaceModel> searchedPlaces;
+  final TextEditingController textController;
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: searchedPlaces.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          onTap: () {
+            textController.text = searchedPlaces[index].stringName;
+
+            switch (type) {
+              case TypePlace.pickup:
+                appState.setPickupAddress(searchedPlaces[index]);
+                break;
+              case TypePlace.destination:
+                appState.setDestinationAddress(searchedPlaces[index]);
+                break;
+            }
+          },
+          title: Text(
+            searchedPlaces[index].stringName,
+            maxLines: 2,
+            style: const TextStyle(fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      },
     );
   }
 }
