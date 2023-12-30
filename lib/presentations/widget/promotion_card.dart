@@ -80,7 +80,7 @@ class PromotionCard extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        // Implement action on tap
+                       Navigator.pop(context, promotion.percent);
                       },
                       child: Text(
                         "Use now",

@@ -105,6 +105,7 @@ class AuthController extends GetxController {
         customer = await cusRepo.readCustomer(_user.value!.uid);
       } catch (e) {
         // Handle errors or set default values
+        debugPrint("Error loading customer data: $e");
       }
     }
   }
