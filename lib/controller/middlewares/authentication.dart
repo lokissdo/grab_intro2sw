@@ -2,25 +2,29 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/routes/route_middleware.dart';
+import 'package:grab/config/injection.dart';
+import 'package:grab/controller/auth_controller.dart';
+import 'package:grab/data/repository/customer_repository.dart';
 import 'package:grab/presentations/router.dart';
 
 class AuthGuard extends GetMiddleware {
-
   @override
   int? get priority => 1;
 
   @override
   RouteSettings? redirect(String? route) {
-    // Check if the user is already logged in
-    FirebaseAuth auth = FirebaseAuth.instance;
-    bool isLoggedIn = auth.currentUser != null;
+    final AuthController authController = Get.find();
+    bool isLoggedIn = authController.user != null;
+    bool isCustomerDataLoaded = authController.customer != null;
 
-    if (isLoggedIn) {
-      // User is already logged in, redirect to the home screen
+    if (isLoggedIn && isCustomerDataLoaded) {
+      // User is logged in and customer data is loaded
       return RouteSettings(name: AppLinks.HOME);
     } else {
-      // User is not logged in, redirect to the login screen
+      // User is not logged in or customer data is not loaded
       return RouteSettings(name: AppLinks.LOGIN);
     }
   }

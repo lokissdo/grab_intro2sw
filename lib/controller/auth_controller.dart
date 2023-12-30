@@ -27,6 +27,7 @@ class AuthController extends GetxController {
     super.onReady();
     _user = Rx<User?>(auth.currentUser);
     _user.bindStream(auth.authStateChanges());
+    ever(_user, (_) => loadCustomerData());
     ever(_user, loginRedirect);
   }
 
@@ -95,6 +96,16 @@ class AuthController extends GetxController {
       // Handle other unexpected exceptions during registration
       print(e);
       getErrorSnackBar("Unexpected Error", e.toString());
+    }
+  }
+
+  Future<void> loadCustomerData() async {
+    if (_user.value != null) {
+      try {
+        customer = await cusRepo.readCustomer(_user.value!.uid);
+      } catch (e) {
+        // Handle errors or set default values
+      }
     }
   }
 
