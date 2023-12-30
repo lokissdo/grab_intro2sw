@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/presentations/router.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -14,7 +16,10 @@ void main() async {
   );
   configureDependencies();
   Get.put(AuthController());
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+        create: (context) => AppState(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
