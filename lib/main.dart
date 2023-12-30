@@ -6,7 +6,6 @@ import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/presentations/router.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
