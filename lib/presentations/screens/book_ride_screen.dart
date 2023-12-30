@@ -1,14 +1,13 @@
-import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:grab/config/injection.dart';
+import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
 import 'package:grab/data/model/payment_method_model.dart';
-import 'package:grab/data/repository/payment_method_repository.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/icons.dart';
+import 'package:provider/provider.dart';
 
 class BookingRideScreen extends StatefulWidget {
   const BookingRideScreen({Key? key}) : super(key: key);
@@ -18,17 +17,17 @@ class BookingRideScreen extends StatefulWidget {
 }
 
 class _BookingRideScreenState extends State<BookingRideScreen> {
-  int selectedPayemntMethodIndex = -1;
+  int selectedPaymentMethodIndex = -1;
   List<PaymentMethodModel> paymentMethods = [];
+  Map<String, dynamic> distance = {};
+
   @override
   void initState() {
     super.initState();
     // Use initState to fetch data when the widget is created
     _loadPaymentMethods();
-  
   }
 
-  
   // Asynchronous function to fetch payment methods
   _loadPaymentMethods() async {
     RideBookingController rideBookingController = RideBookingController();
@@ -45,7 +44,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedPayemntMethodIndex = index;
+          selectedPaymentMethodIndex = index;
         });
       },
       child: Card(
@@ -55,7 +54,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
           borderRadius: BorderRadius.circular(5.0),
           side: BorderSide(
             width: 2.0,
-            color: selectedPayemntMethodIndex == index
+            color: selectedPaymentMethodIndex == index
                 ? Color.fromARGB(
                     255, 243, 233, 33) // Border color when the card is selected
                 : Color.fromARGB(255, 252, 251, 236),
@@ -83,6 +82,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
+
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -123,7 +124,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               ],
                             ),
                             SizedBox(width: 10),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -139,7 +140,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(appState.pickupAddress.stringName),
                                     ],
                                   ),
                                   Column(
@@ -156,13 +157,39 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text("5km",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              )),
+                                          FutureBuilder(
+                                            future: MapController().getDistance(
+                                              appState.pickupAddress.placeId,
+                                              appState
+                                                  .destinationAddress.placeId,
+                                            ),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Text(
+                                                    "Calculating distance...",
+                                                    style: TextStyle(
+                                                        fontSize: 20));
+                                              } else if (snapshot.hasError) {
+                                                return Text(
+                                                    "Error: ${snapshot.error}",
+                                                    style: TextStyle(
+                                                        fontSize: 20));
+                                              } else {
+                                                String distanceText =
+                                                    "${snapshot.data?['distance']}"; // Use the correct key for distance
+                                                return Text(
+                                                  distanceText,
+                                                  style:
+                                                      TextStyle(fontSize: 20),
+                                                );
+                                              }
+                                            },
+                                          ),
                                         ],
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(appState
+                                          .destinationAddress.stringName),
                                     ],
                                   ),
                                 ],

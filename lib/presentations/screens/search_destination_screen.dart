@@ -42,8 +42,6 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<AppState>(context);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
