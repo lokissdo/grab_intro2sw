@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/presentations/screens/my_rides_screen.dart';
+import 'package:grab/presentations/screens/promotions_screen.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class ProfileHomeScreen extends StatelessWidget {
@@ -94,7 +95,10 @@ class ProfileHomeScreen extends StatelessWidget {
                   color: Color(0xFF8d9cb2),
                 ),
                 onPressed: () {
-                  finish(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PromotionsScreen()),
+                  );
                 },
               ),
             ),
