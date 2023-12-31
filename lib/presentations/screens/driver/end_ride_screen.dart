@@ -12,14 +12,14 @@ import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 final GlobalKey<ScaffoldState> jcbHomekey = GlobalKey();
 
-class StartRideScreen extends StatefulWidget {
-  const StartRideScreen({Key? key}) : super(key: key);
+class EndRideScreen extends StatefulWidget {
+  const EndRideScreen({Key? key}) : super(key: key);
 
   @override
-  State<StartRideScreen> createState() => _StartRideScreen();
+  State<EndRideScreen> createState() => _EndRideScreen();
 }
 
-class _StartRideScreen extends State<StartRideScreen> {
+class _EndRideScreen extends State<EndRideScreen> {
   final Completer<GoogleMapController> _controller = Completer();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -278,17 +278,17 @@ class _StartRideScreen extends State<StartRideScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
+                      
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.yellow),
+                          border: Border.all(color: Colors.grey),
                         ),
                         child: ConfirmButton(
                               onPressed: () => {},
-                              text: "Bắt đầu chuyến đi"),
+                              text: "Đã đến nơi, kết thúc chuyến đi"),
                       ),
                       SizedBox(height: 16),
-                      
                     ],
                   ),
                 ),
