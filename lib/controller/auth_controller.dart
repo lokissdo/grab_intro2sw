@@ -9,6 +9,7 @@ import 'package:grab/config/injection.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/data/repository/customer_repository.dart';
+import 'package:grab/data/repository/driver_repository.dart';
 import 'package:grab/presentations/screens/home_screen.dart';
 import 'package:grab/presentations/screens/login_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
@@ -20,6 +21,7 @@ class AuthController extends GetxController {
   User? get user => _user.value;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
+  final DriverRepository driverRepo = getIt.get<DriverRepository>();
   CustomerModel? customer;
   DriverModel? driver;
   @override
@@ -58,7 +60,18 @@ class AuthController extends GetxController {
           email: email,
           createdAt: Timestamp.now());
 
-      await cusRepo.createCustomer(newCustomer);
+      // fake data
+      DriverModel newDriver = DriverModel(
+          name: "Hưng Xe Ôm",
+          id: '12333',
+          phoneNumber: phoneNumber,
+          licenseNumber: "123456",
+          email: email,
+          rating: 0,
+          status: true);
+
+      await driverRepo.createDriver(newDriver);
+      //await cusRepo.createCustomer(newCustomer);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
       Navigator.pushReplacement(
         Get.overlayContext!,
@@ -79,7 +92,8 @@ class AuthController extends GetxController {
       isLoging = true;
       update();
       await auth.signInWithEmailAndPassword(email: email, password: password);
-       customer = await cusRepo.readCustomer(_user.value!.uid);
+      customer = await cusRepo.readCustomer(_user.value!.uid);
+      driver = await driverRepo.readDriver(_user.value!.uid);
       // final GlobalState globalState = ctx.read<GlobalState>();
       // globalState.setCustomer(customer!);
       // print(globalState.customer!.name);
@@ -180,9 +194,8 @@ class AuthController extends GetxController {
     await auth.signOut();
     //direct to Login Screen
     Timer(
-         const Duration(seconds: 1),
-         () => Navigator.pushReplacement(
-      Get.overlayContext!,
-      MaterialPageRoute(builder: (context) => const LoginScreen())));
+        const Duration(seconds: 1),
+        () => Navigator.pushReplacement(Get.overlayContext!,
+            MaterialPageRoute(builder: (context) => const LoginScreen())));
   }
 }
