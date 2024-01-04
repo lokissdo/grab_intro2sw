@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/presentations/screens/my_rides_screen.dart';
+import 'package:grab/presentations/screens/promotions_screen.dart';
 import 'package:nb_utils/nb_utils.dart';
-import 'package:provider/provider.dart';
 
 class ProfileHomeScreen extends StatelessWidget {
   ProfileHomeScreen({Key? key}) : super(key: key);
@@ -13,7 +13,6 @@ class ProfileHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CustomerModel? customer = AuthController.instance.customer;
-    print(customer!.id);
     return Drawer(
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -96,7 +95,10 @@ class ProfileHomeScreen extends StatelessWidget {
                   color: Color(0xFF8d9cb2),
                 ),
                 onPressed: () {
-                  finish(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PromotionsScreen()),
+                  );
                 },
               ),
             ),

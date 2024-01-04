@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/data/mock/polyline.dart';
+import 'package:grab/data/model/address_model.dart';
+import 'package:grab/data/model/search_place_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:grab/utils/constants/key.dart';
-import 'dart:io';
 
 class MapController {
   Future<String> getPlaceId(String address) async {
@@ -30,11 +31,9 @@ class MapController {
     }
   }
 
-  Future<Map<String, dynamic>> getPlace(String address) async {
-    final placeId = await getPlaceId(address);
-
+  Future<Map<String, dynamic>> getPlaceCoordinateById(String id) async {
     final String url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=${MyKey.apiMapKey}';
+        'https://rsapi.goong.io/Place/Detail?place_id=$id&api_key=${MyKey.apiGOONGMapKey}';
 
     try {
       http.Response response = await http.get(Uri.parse(url));
@@ -75,8 +74,68 @@ class MapController {
     } catch (e) {
       return PolylineMock.mockRoutePolyline;
     }
-    writePolylineCoordinatesToFile(polylineCoordinates);
     return polylineCoordinates;
+  }
+
+  Future<List<SearchPlaceModel>> searchPlaces(String address) async {
+    if (address.isEmpty) return [];
+    String encodedAddress = Uri.encodeQueryComponent(address);
+    String url =
+        'https://rsapi.goong.io/Place/AutoComplete?api_key=${MyKey.apiGOONGMapKey}&input=$encodedAddress';
+
+    try {
+      http.Response response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          List<SearchPlaceModel> addresses = [];
+          data['predictions'].forEach((result) {
+            addresses.add(SearchPlaceModel.fromJson(result));
+          });
+          return addresses;
+        } else {
+          throw Exception('Failed to get place ID');
+        }
+      } else {
+        throw Exception('Failed to connect to the server');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDistance(
+      String pickupId, String destinationId) async {
+    try {
+      Map<String, dynamic> pickup = await getPlaceCoordinateById(pickupId);
+      Map<String, dynamic> destination =
+          await getPlaceCoordinateById(destinationId);
+
+      String url =
+          'https://rsapi.goong.io/DistanceMatrix?origins=${pickup["lat"]},${pickup["lng"]}&destinations=${destination["lat"]},${destination["lng"]}&vehicle=bike&api_key=${MyKey.apiGOONGMapKey}';
+
+      http.Response response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        for (var element in data['rows'][0]['elements']) {
+          if (element['status'] == 'OK') {
+            return {
+              'duration': element['duration']['text'],
+              'distance': element['distance']['text'],
+            };
+          }
+        }
+        return {
+          'duration': '0',
+          'distance': '0',
+        };
+      } else {
+        throw Exception('Failed to connect to the server');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
   }
 
   Future<Polyline> generatePolylineFromPoint(
@@ -89,18 +148,4 @@ class MapController {
       width: 3,
     );
   }
-}
-
-void writePolylineCoordinatesToFile(List<LatLng> polylineCoordinates) {
-  File file = File('./file.txt');
-  polylineCoordinates.forEach((element) {
-    print(element);
-  });
-  String content = polylineCoordinates.toString();
-  print(content);
-  file
-      .writeAsString(content)
-      .then((value) => print('Polyline coordinates written to file'))
-      .catchError(
-          (error) => print('Failed to write polyline coordinates: $error'));
 }
