@@ -1,11 +1,10 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/data/model/address_model.dart';
 import 'package:grab/data/model/promotion_model.dart';
 
 class CustomerModel {
   static String collectionName = 'customers';
- CustomerModel({
+  CustomerModel({
     required this.name,
     required this.id,
     required this.phoneNumber,
@@ -13,9 +12,10 @@ class CustomerModel {
     this.address,
     this.createdAt,
     this.updatedAt,
+    this.role = 'customer',
     this.isDeleted = false,
     List<PromotionModel>? promotions, // Add list of promotions
-  }): promotions = promotions ?? [] ; // Initialize promotion list
+  }) : promotions = promotions ?? []; // Initialize promotion list
 
   String id;
   String name;
@@ -25,7 +25,8 @@ class CustomerModel {
   String email;
   AddressModel? address;
   List<PromotionModel> promotions;
-  bool isDeleted ;
+  bool isDeleted;
+  String role;
 
   static CustomerModel fromJson(Map<String, dynamic> map) {
     return CustomerModel(
@@ -36,11 +37,14 @@ class CustomerModel {
       createdAt: map["createdAt"] as Timestamp?,
       updatedAt: map["updatedAt"] as Timestamp?,
       isDeleted: map["isDeleted"] as bool,
-      address: map["address"] != null ? AddressModel.fromJson(map["address"]) : null, // Use Address.fromJson()
+      role: map['role'] ?? 'customer',
+      address: map["address"] != null
+          ? AddressModel.fromJson(map["address"])
+          : null, // Use Address.fromJson()
       promotions: (map['promotions'] as List<dynamic>?)
-                  ?.map((e) => PromotionModel.fromJson(e))
-                  .toList() ??
-              [],
+              ?.map((e) => PromotionModel.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -54,7 +58,8 @@ class CustomerModel {
       "createdAt": createdAt,
       "updatedAt": updatedAt,
       "isDeleted": isDeleted,
-       "promotions": promotions.map((e) => e.toJson()).toList(),
+      "promotions": promotions.map((e) => e.toJson()).toList(),
+      "role": role,
     };
   }
 }

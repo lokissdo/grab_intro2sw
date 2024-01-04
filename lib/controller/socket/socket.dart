@@ -1,8 +1,9 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class SocketController {
+class Socket {
   IO.Socket? socket;
+  String? roomId;
   void initSocket() {
     socket = IO.io(
         'http://192.168.1.63:3000',
@@ -18,10 +19,6 @@ class SocketController {
     socket?.onDisconnect((_) => print('Disconnected from server'));
   }
 
-  void sendPosition(LatLng pos) {
-    socket?.emit('position', pos);
-  }
-
   void disconnect() {
     socket?.disconnect();
   }
@@ -30,11 +27,17 @@ class SocketController {
     socket?.connect();
   }
 
-  void requestRide() {
-    socket?.emit('request_ride');
+  void sendLocation(GeoPoint pos) {
+    socket?.emit('send_location', {
+      'room_id': roomId,
+      'latitude': pos.latitude,
+      'longitude': pos.longitude,
+    });
   }
 
-  void cancelRide() {
-    socket?.emit('cancel_ride');
+  void cancel() {
+    socket?.emit('cancel_ride', {
+      'room_id': roomId,
+    });
   }
 }
