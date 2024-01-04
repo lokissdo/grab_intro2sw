@@ -1,9 +1,9 @@
 import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
 import 'package:grab/data/model/payment_method_model.dart';
+import 'package:grab/presentations/screens/find_driver_screen.dart';
 import 'package:grab/data/repository/payment_method_repository.dart';
 import 'package:grab/presentations/screens/promotions_screen.dart';
-
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +20,9 @@ class BookingRideScreen extends StatefulWidget {
 }
 
 class _BookingRideScreenState extends State<BookingRideScreen> {
+  int selectedPaymentMethodIndex = -1;
   int selectedPayemntMethodIndex = -1;
   double discountPercent = 0.0;
-
   List<PaymentMethodModel> paymentMethods = [];
   Map<String, dynamic> distance = {};
 
@@ -340,7 +340,15 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {}, text: "Xác nhận chuyến đi")
+                              onPressed: () => {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              FindDriverScreen()),
+                                    )
+                                  },
+                              text: "Xác nhận chuyến đi")
                         ],
                       ))
                     ],

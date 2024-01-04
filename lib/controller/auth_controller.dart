@@ -29,6 +29,11 @@ class AuthController extends GetxController {
     _user.bindStream(auth.authStateChanges());
     ever(_user, (_) => loadCustomerData());
     ever(_user, loginRedirect);
+    if (auth.currentUser != null) {
+      cusRepo
+          .readCustomer(auth.currentUser!.uid)
+          .then((value) => {customer = value});
+    }
   }
 
   loginRedirect(User? user) {
@@ -80,7 +85,7 @@ class AuthController extends GetxController {
       isLoging = true;
       update();
       await auth.signInWithEmailAndPassword(email: email, password: password);
-       customer = await cusRepo.readCustomer(_user.value!.uid);
+      customer = await cusRepo.readCustomer(_user.value!.uid);
       // final GlobalState globalState = ctx.read<GlobalState>();
       // globalState.setCustomer(customer!);
       // print(globalState.customer!.name);
