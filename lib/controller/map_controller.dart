@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/data/mock/polyline.dart';
@@ -82,7 +83,6 @@ class MapController {
     String encodedAddress = Uri.encodeQueryComponent(address);
     String url =
         'https://rsapi.goong.io/Place/AutoComplete?api_key=${MyKey.apiGOONGMapKey}&input=$encodedAddress';
-
     try {
       http.Response response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -136,6 +136,18 @@ class MapController {
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
+  }
+
+  Future<List<GeoPoint>> getGeoPoints(
+      String pickupId, String destinationId) async {
+    Map<String, dynamic> pickup = await getPlaceCoordinateById(pickupId);
+    Map<String, dynamic> destination =
+        await getPlaceCoordinateById(destinationId);
+
+    return [
+      GeoPoint(pickup['lat'], pickup['lng']),
+      GeoPoint(destination['lat'], destination['lng']),
+    ];
   }
 
   Future<Polyline> generatePolylineFromPoint(
