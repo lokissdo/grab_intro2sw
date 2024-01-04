@@ -29,7 +29,7 @@ class AuthController extends GetxController {
     super.onReady();
     _user = Rx<User?>(auth.currentUser);
     _user.bindStream(auth.authStateChanges());
-    ever(_user, (_) => loadCustomerData());
+    ever(_user, (_) => loadUserData());
     ever(_user, loginRedirect);
   }
 
@@ -62,17 +62,17 @@ class AuthController extends GetxController {
           createdAt: Timestamp.now());
 
       // fake data
-      DriverModel newDriver = DriverModel(
-          name: "Hưng Xe Ôm",
-          id: '12333',
-          phoneNumber: phoneNumber,
-          licenseNumber: "123456",
-          email: email,
-          rating: 0,
-          status: true);
+      // DriverModel newDriver = DriverModel(
+      //     name: name,
+      //     id: _user.value!.uid,
+      //     phoneNumber: phoneNumber,
+      //     licenseNumber: "123456",
+      //     email: email,
+      //     rating: 0,
+      //     status: true);
 
-      await driverRepo.createDriver(newDriver);
-      //await cusRepo.createCustomer(newCustomer);
+      // await driverRepo.createDriver(newDriver);
+      await cusRepo.createCustomer(newCustomer);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
       Navigator.pushReplacement(
         Get.overlayContext!,
@@ -99,10 +99,11 @@ class AuthController extends GetxController {
       // globalState.setCustomer(customer!);
       // print(globalState.customer!.name);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
-      Navigator.pushReplacement(
-        Get.overlayContext!,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      // Navigator.pushReplacement(
+      //   Get.overlayContext!,
+      //   MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // );
+      Get.offNamed('/check-auth');
     } on FirebaseAuthException catch (e) {
       //define error
       getErrorSnackBar("Login Failed", e);
@@ -113,10 +114,11 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> loadCustomerData() async {
+  Future<void> loadUserData() async {
     if (_user.value != null) {
       try {
         customer = await cusRepo.readCustomer(_user.value!.uid);
+        driver = await driverRepo.readDriver(_user.value!.uid);
       } catch (e) {
         // Handle errors or set default values
         debugPrint("Error loading customer data: $e");

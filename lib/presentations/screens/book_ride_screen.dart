@@ -20,7 +20,7 @@ class BookingRideScreen extends StatefulWidget {
 }
 
 class _BookingRideScreenState extends State<BookingRideScreen> {
-  int selectedPayemntMethodIndex = -1;
+  int selectedPaymentMethodIndex = -1;
   double discountPercent = 0.0;
 
   List<PaymentMethodModel> paymentMethods = [];

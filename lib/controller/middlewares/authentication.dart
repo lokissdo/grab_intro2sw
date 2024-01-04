@@ -19,10 +19,22 @@ class AuthGuard extends GetMiddleware {
     final AuthController authController = Get.find();
     bool isLoggedIn = authController.user != null;
     bool isCustomerDataLoaded = authController.customer != null;
+    bool isDriverDataLoaded = authController.driver != null;
+    if (isLoggedIn) {
 
-    if (isLoggedIn && isCustomerDataLoaded) {
       // User is logged in and customer data is loaded
-      return RouteSettings(name: AppLinks.HOME);
+      if (isCustomerDataLoaded){
+         print("here");
+        return RouteSettings(name: AppLinks.HOME);
+
+      }
+      else if (isDriverDataLoaded){
+         print("here");
+          return RouteSettings(name: AppLinks.HOMEDRIVER);
+      }else{
+        return RouteSettings(name: AppLinks.LOGIN);
+      }
+        
     } else {
       // User is not logged in or customer data is not loaded
       return RouteSettings(name: AppLinks.LOGIN);
