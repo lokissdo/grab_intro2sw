@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddressModel {
@@ -20,11 +19,13 @@ class AddressModel {
   }
 
   static AddressModel fromJson(Map<String, dynamic> map) {
+    var latitude = map["coordinates"]["latitude"];
+    var longitude = map["coordinates"]["longitude"];
     return AddressModel(
       stringName: map["stringName"],
       coordinates: GeoPoint(
-        map["coordinates"]["latitude"],
-        map["coordinates"]["longitude"],
+        latitude,
+        longitude,
       ),
     );
   }
