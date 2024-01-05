@@ -5,8 +5,6 @@ class SocketDriverController extends Socket {
     super.initSocket();
 
     socket?.on('ride_request', (data) {
-      print('ride_request');
-      print(data);
       getRequestRide();
     });
   }

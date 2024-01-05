@@ -5,13 +5,15 @@ class Socket {
   IO.Socket? socket;
   String? roomId;
   void initSocket() {
+    print('Init socket');
     socket = IO.io(
-        'http://192.168.1.63:3000',
+        'http://192.168.1.3:3000',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
             .build());
 
+    socket?.connect();
     socket?.onConnect((_) {
       print('Connected to server');
     });

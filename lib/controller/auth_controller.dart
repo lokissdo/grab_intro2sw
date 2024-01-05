@@ -197,9 +197,8 @@ class AuthController extends GetxController {
     await auth.signOut();
     //direct to Login Screen
     Timer(
-         const Duration(seconds: 1),
-         () => Navigator.pushReplacement(
-      Get.overlayContext!,
-      MaterialPageRoute(builder: (context) => const LoginScreen())));
+        const Duration(seconds: 1),
+        () => Navigator.pushReplacement(Get.overlayContext!,
+            MaterialPageRoute(builder: (context) => const LoginScreen())));
   }
 }

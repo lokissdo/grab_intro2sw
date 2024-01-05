@@ -1,14 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grab/config/injection.dart';
+import 'package:grab/controller/socket/socket.dart';
+import 'package:grab/controller/socket/socket_customer_controller.dart';
 import 'package:grab/data/model/search_place_model.dart';
+import 'package:grab/data/repository/customer_repository.dart';
 
 class AppState extends ChangeNotifier {
   late SearchPlaceModel _pickupAddress;
   late SearchPlaceModel _destinationAddress;
   late GeoPoint _pickupPoint;
   late GeoPoint _destinationPoint;
-
-  AppState() {}
+  late Socket _socketController;
+  AppState() {
+    // final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    // if (auth.currentUser != null) {
+    //   cusRepo.readCustomer(auth.currentUser!.uid).then((customer) => {});
+    // }
+  }
 
   SearchPlaceModel get pickupAddress => _pickupAddress;
   SearchPlaceModel get destinationAddress => _destinationAddress;

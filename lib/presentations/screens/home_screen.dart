@@ -8,6 +8,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:grab/presentations/screens/search_destination_screen.dart';
 import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 final GlobalKey<ScaffoldState> jcbHomekey = GlobalKey();
 
 class HomeScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  
   Position? currentPosition;
   Set<Marker> markers = {};
   @override

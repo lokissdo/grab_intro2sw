@@ -54,26 +54,28 @@ class MapController {
   }
 
   Future<List<LatLng>> getPolylinePoints(
-      LatLng _currentP, LatLng _destinationP) async {
+      GeoPoint _currentP, GeoPoint _destinationP) async {
     List<LatLng> polylineCoordinates = [];
     PolylinePoints polylinePoints = PolylinePoints();
+    var url =
+        'https://rsapi.goong.io/Direction?origin=${_currentP.latitude},${_currentP.longitude}&destination=${_destinationP.latitude},${_destinationP.longitude}&vehicle=bike&api_key=${MyKey.apiGOONGMapKey}';
     try {
-      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        MyKey.apiMapKey,
-        PointLatLng(_currentP!.latitude, _currentP!.longitude),
-        PointLatLng(_destinationP.latitude, _destinationP.longitude),
-        travelMode: TravelMode.driving,
-      );
-
-      if (result.points.isNotEmpty) {
-        result.points.forEach((PointLatLng point) {
-          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-        });
+      http.Response response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        List<dynamic> steps = data['routes'][0]['legs'][0]['steps'];
+        for (var step in steps) {
+          polylineCoordinates.add(LatLng(
+              step['start_location']['lat'], step['start_location']['lng']));
+          polylineCoordinates.add(
+              LatLng(step['end_location']['lat'], step['end_location']['lng']));
+        }
+        return polylineCoordinates;
       } else {
-        print(result.errorMessage);
+        return PolylineMock.mockRoutePolyline;
       }
     } catch (e) {
-      return PolylineMock.mockRoutePolyline;
+      print(e);
     }
     return polylineCoordinates;
   }
@@ -100,7 +102,8 @@ class MapController {
         throw Exception('Failed to connect to the server');
       }
     } catch (e) {
-      throw Exception('An error occurred: $e');
+      print(e);
+      return [];
     }
   }
 
