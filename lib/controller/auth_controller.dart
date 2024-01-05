@@ -9,6 +9,7 @@ import 'package:grab/config/injection.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/data/repository/customer_repository.dart';
+import 'package:grab/data/repository/driver_repository.dart';
 import 'package:grab/presentations/screens/home_screen.dart';
 import 'package:grab/presentations/screens/login_screen.dart';
 import 'package:grab/utils/constants/themes.dart';
@@ -20,6 +21,7 @@ class AuthController extends GetxController {
   User? get user => _user.value;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
+  final DriverRepository driverRepo = getIt.get<DriverRepository>();
   CustomerModel? customer;
   DriverModel? driver;
   @override
@@ -27,7 +29,7 @@ class AuthController extends GetxController {
     super.onReady();
     _user = Rx<User?>(auth.currentUser);
     _user.bindStream(auth.authStateChanges());
-    ever(_user, (_) => loadCustomerData());
+    ever(_user, (_) => loadUserData());
     ever(_user, loginRedirect);
     if (auth.currentUser != null) {
       cusRepo
@@ -64,6 +66,17 @@ class AuthController extends GetxController {
           email: email,
           createdAt: Timestamp.now());
 
+      // fake data
+      // DriverModel newDriver = DriverModel(
+      //     name: name,
+      //     id: _user.value!.uid,
+      //     phoneNumber: phoneNumber,
+      //     licenseNumber: "123456",
+      //     email: email,
+      //     rating: 0,
+      //     status: true);
+
+      // await driverRepo.createDriver(newDriver);
       await cusRepo.createCustomer(newCustomer);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
       Navigator.pushReplacement(
@@ -86,14 +99,16 @@ class AuthController extends GetxController {
       update();
       await auth.signInWithEmailAndPassword(email: email, password: password);
       customer = await cusRepo.readCustomer(_user.value!.uid);
+      driver = await driverRepo.readDriver(_user.value!.uid);
       // final GlobalState globalState = ctx.read<GlobalState>();
       // globalState.setCustomer(customer!);
       // print(globalState.customer!.name);
       getSuccessSnackBar("Successfully logged in as ${_user.value!.email}");
-      Navigator.pushReplacement(
-        Get.overlayContext!,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      // Navigator.pushReplacement(
+      //   Get.overlayContext!,
+      //   MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // );
+      Get.offNamed('/check-auth');
     } on FirebaseAuthException catch (e) {
       //define error
       getErrorSnackBar("Login Failed", e);
@@ -104,10 +119,11 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> loadCustomerData() async {
+  Future<void> loadUserData() async {
     if (_user.value != null) {
       try {
         customer = await cusRepo.readCustomer(_user.value!.uid);
+        driver = await driverRepo.readDriver(_user.value!.uid);
       } catch (e) {
         // Handle errors or set default values
         debugPrint("Error loading customer data: $e");

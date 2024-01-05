@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/presentations/screens/my_rides_screen.dart';
 import 'package:grab/presentations/screens/promotions_screen.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -13,6 +14,9 @@ class ProfileHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CustomerModel? customer = AuthController.instance.customer;
+    DriverModel? driver = AuthController.instance.driver;
+    String userName = customer != null ? customer.name : (driver != null ? driver.name : '');
+    String phoneNumber = customer != null ? customer.phoneNumber : (driver != null ? driver.phoneNumber : '');
     return Drawer(
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -44,12 +48,12 @@ class ProfileHomeScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              customer!.name,
+                              userName,
                               style: boldTextStyle(
                                   color: Colors.white.withOpacity(1), size: 18),
                             ),
                             Text(
-                              customer.phoneNumber,
+                              phoneNumber,
                               style: boldTextStyle(
                                 color: Color(0xFFD5D5D5).withOpacity(1),
                               ),
