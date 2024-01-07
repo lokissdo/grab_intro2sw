@@ -151,7 +151,7 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => BookingRideScreen()));

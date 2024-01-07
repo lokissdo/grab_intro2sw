@@ -5,12 +5,14 @@ class ConfirmButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
   final Color color;
+  final double fontSize;
 
   const ConfirmButton({
     Key? key,
     required this.onPressed,
     required this.text,
     this.color = MyTheme.yellowBtn,
+    this.fontSize = 20,
   }) : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class ConfirmButton extends StatelessWidget {
       onPressed: onPressed,
       child: Text(
         text,
-        style: TextStyle(color: Colors.white, fontSize: 20),
+        style: TextStyle(color: Colors.white, fontSize: fontSize),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/controller/map_controller.dart';
@@ -9,9 +9,10 @@ import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:provider/provider.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class FindDriverScreen extends StatefulWidget {
-  const FindDriverScreen({super.key});
+  const FindDriverScreen({Key? key});
 
   @override
   State<FindDriverScreen> createState() => _FindDriverScreenState();
@@ -20,89 +21,250 @@ class FindDriverScreen extends StatefulWidget {
 class _FindDriverScreenState extends State<FindDriverScreen> {
   late SocketCustomerController socketCustomerController;
   late Map<PolylineId, Polyline> _polylines;
+  Completer<GoogleMapController> _mapController = Completer();
   double currentProgress = 0.0;
   Timer? progressBarTimer;
-
+  IO.Socket? socket;
+  bool confirmRide = false;
+  late Future<List<Object>?> _fetchData;
+  bool haveDriver = false;
+  LatLng? driverPosition;
+  FirebaseAuth auth = FirebaseAuth.instance;
   @override
   void initState() {
-    print('Call init state');
     super.initState();
-    socketCustomerController = SocketCustomerController();
-    socketCustomerController.initSocket();
+    _fetchData = _fetchPolylineAndGeoPoints();
+    _initializeSocket();
+  }
+
+  void updateProgressBar() {
+    const interval = Duration(milliseconds: 10);
+    progressBarTimer = Timer.periodic(interval, (timer) {
+      if (!this.mounted) {
+        timer.cancel(); // Cancel the timer if the widget is not mounted
+        return;
+      }
+      setState(() {
+        currentProgress = (currentProgress + 1) % 101;
+      });
+    });
+  }
+
+  void _initializeSocket() {
+    socket = IO.io(
+      'http://192.168.1.6:3000',
+      IO.OptionBuilder()
+          .setTransports(['websocket'])
+          .disableAutoConnect()
+          .build(),
+    );
+
+    socket?.connect();
+
+    socket?.onConnect((_) {
+      print('Connected to server');
+    });
+
+    socket?.on('accept_ride', (msg) {
+      socket?.emit('accept_ride', msg);
+      setState(() {
+        haveDriver = true;
+      });
+    });
+
+    GoogleMapController? _controller;
+
+    socket?.on('send_location', (msg) async {
+      _controller ??= await _mapController.future;
+      _controller!.moveCamera(CameraUpdate.newLatLng(
+          LatLng(msg['position']['lat'], msg['position']['lng'])));
+      setState(() {
+        driverPosition = LatLng(msg['position']['lat'], msg['position']['lng']);
+      });
+    });
+
+    socket?.onDisconnect((_) => {
+          print('Disconnected from server'),
+          socket?.emit('user_disconnect', {
+            'id': auth.currentUser?.uid,
+          })
+        });
+  }
+
+  Future<List<Object>?> _fetchPolylineAndGeoPoints() async {
+    try {
+      var appState = Provider.of<AppState>(context, listen: false);
+      List<GeoPoint> geoPoints = await MapController().getGeoPoints(
+        appState.pickupAddress.placeId,
+        appState.destinationAddress.placeId,
+      );
+      List<LatLng> polylinePoints = await MapController().getPolylinePoints(
+        geoPoints[0],
+        geoPoints[1],
+      );
+      Polyline polyline =
+          await MapController().generatePolylineFromPoint(polylinePoints);
+
+      return [geoPoints, polyline];
+    } catch (error) {
+      print("Error: $error");
+      return null;
+    }
+  }
+
+  Future<void> fitPolylineBounds(List<GeoPoint> geoPoints) async {
+    final GoogleMapController controller = await _mapController.future;
+    var bounds;
+    GeoPoint start = geoPoints[0];
+    GeoPoint end = geoPoints[1];
+
+    if (start.latitude > end.latitude) {
+      bounds = LatLngBounds(
+          northeast: LatLng(start.latitude, start.longitude),
+          southwest: LatLng(end.latitude, end.longitude));
+    } else {
+      bounds = LatLngBounds(
+          southwest: LatLng(start.latitude, start.longitude),
+          northeast: LatLng(end.latitude, end.longitude));
+    }
+
+    LatLng centerBounds = LatLng(
+        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+        (bounds.northeast.longitude + bounds.southwest.longitude) / 2);
+
+    controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: centerBounds,
+      zoom: 17,
+    )));
+    bool keepZoomingOut = true;
+
+    while (keepZoomingOut) {
+      final LatLngBounds screenBounds = await controller.getVisibleRegion();
+      if (fits(bounds, screenBounds)) {
+        keepZoomingOut = false;
+        final double zoomLevel = await controller.getZoomLevel() - 0.5;
+        controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target: centerBounds,
+          zoom: zoomLevel,
+        )));
+        break;
+      } else {
+        final double zoomLevel = await controller.getZoomLevel() - 0.1;
+        controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target: centerBounds,
+          zoom: zoomLevel,
+        )));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<AppState>(context);
-
+    print('haveDriver $haveDriver');
     return Scaffold(
-      body: Row(
-        children: [
-          FutureBuilder(
-            future: MapController()
-                .getGeoPoints(
-                  appState.pickupAddress.placeId,
-                  appState.destinationAddress.placeId,
-                )
-                .then((geoPoints) => MapController()
-                    .getPolylinePoints(geoPoints[0], geoPoints[1])
-                    .then((polylinePoints) => MapController()
-                        .generatePolylineFromPoint(polylinePoints)
-                        .then((polyline) => [geoPoints, polyline]))),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Text("Calculating distance...",
-                    style: TextStyle(fontSize: 20));
-              } else if (snapshot.hasError) {
-                return Text("Error: ${snapshot.error}",
-                    style: TextStyle(fontSize: 20));
-              } else {
-                List<Object>? geoPoints = snapshot.data?[0] as List<Object>?;
-                Polyline? polyline = snapshot.data?[1] as Polyline;
+      body: FutureBuilder(
+        future: _fetchData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Text("Calculating distance...",
+                  style: TextStyle(fontSize: 20)),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}",
+                  style: TextStyle(fontSize: 20)),
+            );
+          } else {
+            List<Object>? data = snapshot.data;
+            List<GeoPoint> geoPoints = data?[0] as List<GeoPoint>;
+            Polyline polyline = data?[1] as Polyline;
 
-                _polylines = Map<PolylineId, Polyline>();
-                _polylines[polyline.polylineId] = polyline;
+            _polylines = Map<PolylineId, Polyline>();
+            _polylines[polyline.polylineId] = polyline;
 
-                GeoPoint? pickup = geoPoints?[0] as GeoPoint?;
-                GeoPoint? destination = geoPoints?[1] as GeoPoint?;
+            GeoPoint pickup = geoPoints[0];
+            GeoPoint destination = geoPoints[1];
 
-                appState.setDestinationPoint(destination!);
-                appState.setPickupPoint(pickup!);
+            var appState = Provider.of<AppState>(context);
 
-                Set<Marker> markers = {};
-                markers.add(Marker(
-                  markerId: MarkerId('currentLocation'),
-                  position: LatLng(pickup.latitude, pickup.longitude),
-                  infoWindow: InfoWindow(title: 'Current Location'),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueGreen),
-                ));
+            appState.setDestinationPoint(destination);
+            appState.setPickupPoint(pickup);
 
-                markers.add(Marker(
-                  markerId: MarkerId('destination'),
-                  position: LatLng(destination.latitude, destination.longitude),
-                  infoWindow: InfoWindow(title: 'Destination'),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueRed),
-                ));
-                return Stack(
-                  children: [
-                    GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                            pickup.latitude,
-                            pickup.longitude,
-                          ),
-                          zoom: 15),
-                      polylines: Set<Polyline>.of(_polylines.values),
-                      markers: markers,
-                      // onMapCreated: (GoogleMapController controller) {
-                      //   _controller.complete(controller);
-                      // },
+            Set<Marker> markers = {};
+            markers.add(Marker(
+              markerId: MarkerId('currentLocation'),
+              position: LatLng(pickup.latitude, pickup.longitude),
+              infoWindow: InfoWindow(title: 'Current Location'),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueGreen),
+            ));
+
+            if (driverPosition != null) {
+              markers.add(Marker(
+                markerId: MarkerId('driver'),
+                position: driverPosition!,
+                infoWindow: InfoWindow(title: 'Driver'),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueBlue),
+              ));
+            } else {
+              markers.add(Marker(
+                markerId: MarkerId('destination'),
+                position: LatLng(destination.latitude, destination.longitude),
+                infoWindow: InfoWindow(title: 'Destination'),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed),
+              ));
+            }
+
+            return Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(pickup.latitude, pickup.longitude),
+                    zoom: 15,
+                  ),
+                  polylines: _polylines.values
+                      .where((polyline) => driverPosition == null)
+                      .toSet(),
+                  markers: markers,
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController.complete(controller);
+                    fitPolylineBounds(geoPoints);
+                  },
+                ),
+                Positioned(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.yellow,
+                      padding: EdgeInsets.zero,
                     ),
-                    Column(
+                    child: const Text(
+                      'Back',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  top: 20,
+                  left: 10,
+                ),
+                if (confirmRide == true && haveDriver == false)
+                  Container(
+                    height: 110,
+                    alignment: Alignment.bottomCenter,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: const BoxDecoration(
+                      color: Colors.yellow,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
                       children: [
-                        Center(child: ProgressBar(width: 30, height: 5)),
                         Row(
                           children: [
                             const Image(
@@ -127,14 +289,62 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                           value: currentProgress / 100,
                         )
                       ],
-                    )
-                  ],
-                );
-              }
-            },
-          ),
-        ],
+                    ),
+                  )
+                else
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size.fromHeight(40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        backgroundColor: Colors.yellow,
+                      ),
+                      child: Text(
+                        'Confirm ride',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          confirmRide = true;
+                          FirebaseAuth auth = FirebaseAuth.instance;
+                          User? user = auth.currentUser;
+                          socket?.emit('request_ride', {
+                            'customerId': user?.uid,
+                            'position': {
+                              'lat': pickup.latitude,
+                              'lng': pickup.longitude
+                            },
+                          });
+                          updateProgressBar();
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            );
+          }
+        },
       ),
     );
   }
+}
+
+bool fits(LatLngBounds fitBounds, LatLngBounds screenBounds) {
+  final bool northEastLatitudeCheck =
+      screenBounds.northeast.latitude >= fitBounds.northeast.latitude;
+  final bool northEastLongitudeCheck =
+      screenBounds.northeast.longitude >= fitBounds.northeast.longitude;
+
+  final bool southWestLatitudeCheck =
+      screenBounds.southwest.latitude <= fitBounds.southwest.latitude;
+  final bool southWestLongitudeCheck =
+      screenBounds.southwest.longitude <= fitBounds.southwest.longitude;
+
+  return northEastLatitudeCheck &&
+      northEastLongitudeCheck &&
+      southWestLatitudeCheck &&
+      southWestLongitudeCheck;
 }
