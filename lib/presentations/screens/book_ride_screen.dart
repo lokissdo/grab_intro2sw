@@ -1,9 +1,9 @@
 import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
 import 'package:grab/data/model/payment_method_model.dart';
+import 'package:grab/presentations/screens/find_driver_screen.dart';
 import 'package:grab/data/repository/payment_method_repository.dart';
 import 'package:grab/presentations/screens/promotions_screen.dart';
-
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +16,11 @@ class BookingRideScreen extends StatefulWidget {
   const BookingRideScreen({Key? key}) : super(key: key);
   @override
   State<BookingRideScreen> createState() => _BookingRideScreenState();
-  
 }
 
 class _BookingRideScreenState extends State<BookingRideScreen> {
   int selectedPaymentMethodIndex = -1;
   double discountPercent = 0.0;
-
   List<PaymentMethodModel> paymentMethods = [];
   Map<String, dynamic> distance = {};
 
@@ -44,6 +42,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       paymentMethods = methods;
     });
   }
+
   Widget buildCard(int index, String imagePath, String text) {
     return GestureDetector(
       onTap: () {
@@ -237,43 +236,42 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               ],
                             ),
                           )),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Áp dụng giảm giá!"),
-                              IconButton(
-                                onPressed: () async {
-                                  // Navigate to PromotionsScreen and wait for result
-                                  final selectedPromotionPercent = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PromotionsScreen(),
-                                    ),
-                                  );
-
-                                  // Handle the returned promotion percent
-                                  if (selectedPromotionPercent != null) {
-                                    // Use the selected promotion percent in your logic here
-                                    discountPercent = selectedPromotionPercent; 
-                                  }
-                                  else
-                                  {
-                                    discountPercent = 0.0;
-                                  }
-                                  setState(() {
-                                        discountPercent = selectedPromotionPercent;
-                                    });
-
-                                },
-                                icon: Icon(
-                                  Icons.arrow_forward, // Replace with your desired icon
-                                  size: 24,
-                                  color: Colors.black, // Adjust color as needed
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Áp dụng giảm giá!"),
+                          IconButton(
+                            onPressed: () async {
+                              // Navigate to PromotionsScreen and wait for result
+                              final selectedPromotionPercent =
+                                  await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PromotionsScreen(),
                                 ),
-                              ),
-                            ],
+                              );
+
+                              // Handle the returned promotion percent
+                              if (selectedPromotionPercent != null) {
+                                // Use the selected promotion percent in your logic here
+                                discountPercent = selectedPromotionPercent;
+                              } else {
+                                discountPercent = 0.0;
+                              }
+                              setState(() {
+                                discountPercent = selectedPromotionPercent;
+                              });
+                            },
+                            icon: Icon(
+                              Icons
+                                  .arrow_forward, // Replace with your desired icon
+                              size: 24,
+                              color: Colors.black, // Adjust color as needed
+                            ),
                           ),
-                        Column(
+                        ],
+                      ),
+                      Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(
@@ -295,7 +293,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Giá cước"),
-                                Text("\$200"), // Assume this is your original price
+                                Text(
+                                    "\$200"), // Assume this is your original price
                               ],
                             ),
                             Row(
@@ -303,7 +302,9 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               children: [
                                 Text("Khuyến mãi"),
                                 // Display discount amount based on discountPercent
-                                Text(discountPercent > 0 ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}" : "\$0"),
+                                Text(discountPercent > 0
+                                    ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}"
+                                    : "\$0"),
                               ],
                             )
                           ]),
@@ -340,7 +341,15 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {}, text: "Xác nhận chuyến đi")
+                              onPressed: () => {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              FindDriverScreen()),
+                                    )
+                                  },
+                              text: "Xác nhận chuyến đi")
                         ],
                       ))
                     ],
