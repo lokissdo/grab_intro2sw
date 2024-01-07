@@ -12,7 +12,6 @@ class CustomerModel {
     this.address,
     this.createdAt,
     this.updatedAt,
-    this.role = 'customer',
     this.isDeleted = false,
     List<PromotionModel>? promotions, // Add list of promotions
   }) : promotions = promotions ?? []; // Initialize promotion list
@@ -26,7 +25,6 @@ class CustomerModel {
   AddressModel? address;
   List<PromotionModel> promotions;
   bool isDeleted;
-  String role;
 
   static CustomerModel fromJson(Map<String, dynamic> map) {
     return CustomerModel(
@@ -37,7 +35,6 @@ class CustomerModel {
       createdAt: map["createdAt"] as Timestamp?,
       updatedAt: map["updatedAt"] as Timestamp?,
       isDeleted: map["isDeleted"] as bool,
-      role: map['role'] ?? 'customer',
       address: map["address"] != null
           ? AddressModel.fromJson(map["address"])
           : null, // Use Address.fromJson()
@@ -59,7 +56,6 @@ class CustomerModel {
       "updatedAt": updatedAt,
       "isDeleted": isDeleted,
       "promotions": promotions.map((e) => e.toJson()).toList(),
-      "role": role,
     };
   }
 }

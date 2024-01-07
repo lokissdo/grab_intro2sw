@@ -31,11 +31,6 @@ class AuthController extends GetxController {
     _user.bindStream(auth.authStateChanges());
     ever(_user, (_) => loadUserData());
     ever(_user, loginRedirect);
-    if (auth.currentUser != null) {
-      cusRepo
-          .readCustomer(auth.currentUser!.uid)
-          .then((value) => {customer = value});
-    }
   }
 
   loginRedirect(User? user) {

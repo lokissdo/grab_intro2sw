@@ -1,14 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:grab/config/injection.dart';
-import 'package:grab/controller/auth_controller.dart';
-import 'package:grab/controller/socket/socket.dart';
-import 'package:grab/controller/socket/socket_customer_controller.dart';
-import 'package:grab/controller/socket/socket_driver_controller.dart';
 import 'package:grab/data/model/search_place_model.dart';
-import 'package:grab/data/repository/customer_repository.dart';
 
 class AppState extends ChangeNotifier {
   late SearchPlaceModel _pickupAddress;
