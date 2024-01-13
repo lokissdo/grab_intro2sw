@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class SocketMsgModel {
   String? customerId;
   String? driverId;
+  String? rideId;
   String? customerSocketId;
   String? driverSocketId;
   LatLng? pickupPoint;

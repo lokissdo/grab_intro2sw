@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_pickup_screen.dart';
@@ -23,8 +24,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   int selectedPaymentMethodIndex = -1;
   final String CASH_PAYMENT_NAME = 'cash';
   CustomerModel? fakerCustomerData;
-
-
+  RideController rideController = RideController();
   @override
   void initState() {
     super.initState();
@@ -32,6 +32,9 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
 
   void acceptRide() {
     widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
+
+    widget.socketMsg?.rideId = rideController
+        .createRide(widget.socketMsg as SocketMsgModel) as String?;
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return StartPickupScreen(
         socket: widget.socket,
@@ -43,10 +46,10 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   Widget buildCard(String imagePath, String text) {
     return Card(
       elevation: 0,
-      color: Color.fromARGB(255, 252, 251, 236),
+      color: const Color.fromARGB(255, 252, 251, 236),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0),
-        side: BorderSide(
+        side: const BorderSide(
             width: 2.0,
             color: Color.fromARGB(
                 255, 243, 233, 33) // Border color when the card is selected
@@ -55,16 +58,16 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Image(
             image: AssetImage(imagePath),
             width: 70,
             height: 70,
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Text(
             text,
-            style: TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 20),
           ),
         ],
       ),
@@ -126,7 +129,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment:
@@ -151,7 +154,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
@@ -220,7 +223,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                           ConfirmButton(
                               onPressed: () => {acceptRide()},
                               text: "Đồng ý nhận chuyến đi"),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                         ],
