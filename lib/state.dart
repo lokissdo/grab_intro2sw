@@ -7,6 +7,7 @@ class AppState extends ChangeNotifier {
   late SearchPlaceModel _destinationAddress;
   late GeoPoint _pickupPoint;
   late GeoPoint _destinationPoint;
+
   AppState() {}
 
   SearchPlaceModel get pickupAddress => _pickupAddress;

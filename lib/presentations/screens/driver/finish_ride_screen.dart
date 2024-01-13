@@ -4,7 +4,7 @@ import 'package:grab/config/injection.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/payment_method_model.dart';
-import 'package:grab/data/repository/payment_method_repository.dart';
+import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +12,13 @@ import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/utils/constants/icons.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class FinishRideScreen extends StatefulWidget {
-  const FinishRideScreen({Key? key}) : super(key: key);
+  SocketMsgModel? socketMsg;
+  IO.Socket? socket;
+  FinishRideScreen({Key? key, required this.socket, required this.socketMsg})
+      : super(key: key);
 
   @override
   State<FinishRideScreen> createState() => _FinishRideScreenState();
@@ -23,19 +27,19 @@ class FinishRideScreen extends StatefulWidget {
 class _FinishRideScreenState extends State<FinishRideScreen> {
   int selectedPayemntMethodIndex = -1;
   final String CASH_PAYMENT_NAME = 'cash';
-   PaymentMethodModel? fakerPaymentData ;
-    CustomerModel? fakerCustomerData ;
+  PaymentMethodModel? fakerPaymentData;
+  CustomerModel? fakerCustomerData;
   @override
   void initState() {
     super.initState();
-    fakerPaymentData = new PaymentMethodModel(
+    fakerPaymentData = PaymentMethodModel(
         id: "2",
         name: "momo",
         description: 'MoMo',
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         isDeleted: false);
-    fakerCustomerData = new CustomerModel(
+    fakerCustomerData = CustomerModel(
         name: "Nguyễn Văn A",
         id: "213",
         phoneNumber: "0123456789",
@@ -45,10 +49,10 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
   Widget buildCard(String imagePath, String text) {
     return Card(
       elevation: 0,
-      color: Color.fromARGB(255, 252, 251, 236),
+      color: const Color.fromARGB(255, 252, 251, 236),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0),
-        side: BorderSide(
+        side: const BorderSide(
             width: 2.0,
             color: Color.fromARGB(
                 255, 243, 233, 33) // Border color when the card is selected
@@ -57,16 +61,16 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Image(
             image: AssetImage(imagePath),
             width: 70,
             height: 70,
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Text(
             text,
-            style: TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 20),
           ),
         ],
       ),
@@ -87,10 +91,9 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
-                      NavBar(title: "Hoàn tất chuyến đi"),
-                       const SizedBox(height: 30),
-                       Row(
+                      const NavBar(title: "Hoàn tất chuyến đi"),
+                      const SizedBox(height: 30),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -99,7 +102,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                           ),
                           Text(
                             fakerCustomerData?.phoneNumber ?? "",
-                            style:MyStyles.boldTextStyle,
+                            style: MyStyles.boldTextStyle,
                           )
                         ],
                       ),
@@ -129,8 +132,8 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: 10),
-                            const Expanded(
+                            const SizedBox(width: 10),
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -140,20 +143,21 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Vị trí bắt đầu",
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(widget.socketMsg?.pickupAddress ??
+                                          ""),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
@@ -169,7 +173,9 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                                               )),
                                         ],
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(widget
+                                              .socketMsg?.destinationAddress ??
+                                          ""),
                                     ],
                                   ),
                                 ],
@@ -264,9 +270,11 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                          fakerPaymentData != null  ?
-                          buildCard(IconPath.payment[fakerPaymentData!.name]!,
-                               fakerPaymentData!.description ):Container(),
+                          fakerPaymentData != null
+                              ? buildCard(
+                                  IconPath.payment[fakerPaymentData!.name]!,
+                                  fakerPaymentData!.description)
+                              : Container(),
                           const SizedBox(
                             height: 10,
                           ),
@@ -279,7 +287,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                           ConfirmButton(
                               onPressed: () => {},
                               text: "Xác nhận hoàn tất chuyến đi"),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           ConfirmButton(
