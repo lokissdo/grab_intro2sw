@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grab/controller/map_controller.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
-import 'package:grab/presentations/screens/driver/finish_ride_screen.dart';
+import 'package:grab/presentations/screens/driver/start_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -14,37 +16,128 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 final GlobalKey<ScaffoldState> jcbHomekey = GlobalKey();
 
-class EndRideScreen extends StatefulWidget {
+class StartPickupScreen extends StatefulWidget {
   IO.Socket? socket;
   SocketMsgModel? socketMsg;
-  EndRideScreen({Key? key, required this.socket, required this.socketMsg})
+  StartPickupScreen({Key? key, required this.socket, required this.socketMsg})
       : super(key: key);
 
   @override
-  State<EndRideScreen> createState() => _EndRideScreen();
+  State<StartPickupScreen> createState() => _StartPickupScreen();
 }
 
-class _EndRideScreen extends State<EndRideScreen> {
-  final Completer<GoogleMapController> _controller = Completer();
+class _StartPickupScreen extends State<StartPickupScreen> {
+  final Completer<GoogleMapController> _mapController = Completer();
   final FirebaseAuth auth = FirebaseAuth.instance;
+  late Future<Object>? _fetchData;
   bool isContainerVisible = true;
-  late LatLng currentPosition;
+  Polyline _polyline = Polyline(polylineId: const PolylineId(''));
+  late Timer timer;
+  Position? currentPosition;
   Set<Marker> markers = {};
+
+  void _addEventSocket() {
+    widget.socket?.on('accept_ride', (msg) {
+      widget.socketMsg = SocketMsgModel.fromJson(msg);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    currentPosition = widget.socketMsg!.destinationPoint as LatLng;
+    _addEventSocket();
+    _fetchData = _fetchPolyline();
+    _getCurrentLocation();
   }
 
-  void confirmFinish() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => FinishRideScreen(
-                  socket: widget.socket,
-                  socketMsg: widget.socketMsg,
-                )));
+  Future<Object>? _fetchPolyline() async {
+    try {
+      List<LatLng> polylinePoints = await MapController().getPolylinePoints(
+          GeoPoint(widget.socketMsg!.driverPosition!.latitude,
+              widget.socketMsg!.driverPosition!.longitude),
+          GeoPoint(widget.socketMsg!.customerPosition!.latitude,
+              widget.socketMsg!.customerPosition!.longitude));
+      Polyline polyline =
+          await MapController().generatePolylineFromPoint(polylinePoints);
+
+      return polyline;
+    } catch (error) {
+      print("Error: $error");
+      return error;
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      currentPosition = position;
+      markers.add(Marker(
+        markerId: const MarkerId('currentLocation'),
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: const InfoWindow(title: 'Current Location'),
+      ));
+    });
+  }
+
+  void startRoute(Polyline polyline) async {
+    GoogleMapController controller = await _mapController.future;
+    List<LatLng> points = polyline.points;
+
+    int index = 0;
+
+    void updateStateWithDelay() {
+      if (index < points.length) {
+        widget.socketMsg?.driverPosition = points[index];
+        print('send location ${widget.socketMsg?.driverPosition}');
+        widget.socket?.emit('send_location', widget.socketMsg?.toJson());
+
+        controller.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(target: points[index], zoom: 15)));
+        setState(() {
+          markers.add(Marker(
+            markerId: const MarkerId('currentLocation'),
+            position: points[index],
+            infoWindow: const InfoWindow(title: 'Current Location'),
+          ));
+        });
+
+        timer = Timer(Duration(seconds: 5), () {
+          index++;
+          updateStateWithDelay();
+        });
+      }
+    }
+
+    updateStateWithDelay();
+  }
+
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -57,19 +150,34 @@ class _EndRideScreen extends State<EndRideScreen> {
           : Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      currentPosition.latitude,
-                      currentPosition.longitude,
-                    ),
-                    zoom: 15,
-                  ),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                  },
-                  markers: markers,
-                ),
+                FutureBuilder(
+                    future: _fetchData,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text("Calculating distance...",
+                            style: TextStyle(fontSize: 20));
+                      } else if (snapshot.hasError) {
+                        return Text("Error: ${snapshot.error}",
+                            style: TextStyle(fontSize: 20));
+                      } else {
+                        Polyline polyline = snapshot.data as Polyline;
+                        return GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                              widget.socketMsg!.pickupPoint!.latitude,
+                              widget.socketMsg!.pickupPoint!.longitude,
+                            ),
+                            zoom: 15,
+                          ),
+                          onMapCreated: (GoogleMapController controller) {
+                            _mapController.complete(controller);
+                            startRoute(polyline);
+                          },
+                          polylines: Set<Polyline>.from([polyline]),
+                          markers: markers,
+                        );
+                      }
+                    }),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -110,24 +218,12 @@ class _EndRideScreen extends State<EndRideScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(
+                              padding: EdgeInsets.all(
                                   10), // This adds 10 pixels of padding on all sides
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Customer name aligned to the left
-                                  const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Customer Name", // Replace with your dynamic customer name
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-
-                                  // Spacing between the text and the icons
                                   Expanded(
                                     child: Container(),
                                   ),
@@ -150,7 +246,7 @@ class _EndRideScreen extends State<EndRideScreen> {
                                             ),
                                           ),
                                           child: IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                               Icons.message,
                                               color: Colors.yellow,
                                             ),
@@ -159,7 +255,7 @@ class _EndRideScreen extends State<EndRideScreen> {
                                             },
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                             width:
                                                 8), // Space between the icons
                                         Container(
@@ -173,7 +269,7 @@ class _EndRideScreen extends State<EndRideScreen> {
                                             ),
                                           ),
                                           child: IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                               Icons.local_phone,
                                               color: Colors.yellow,
                                             ),
@@ -201,19 +297,9 @@ class _EndRideScreen extends State<EndRideScreen> {
                                         width: 25,
                                         height: 25,
                                       ),
-                                      CustomPaint(
-                                        size: const Size(1, 60),
-                                        painter: DashedLineVerticalPainter(),
-                                      ),
-                                      const Image(
-                                        image: AssetImage(
-                                            'assets/icons/location2.png'),
-                                        width: 25,
-                                        height: 25,
-                                      ),
                                     ],
                                   ),
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       mainAxisAlignment:
@@ -225,41 +311,22 @@ class _EndRideScreen extends State<EndRideScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const Text(
-                                              "Vị trí bắt đầu",
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(widget
-                                                    .socketMsg?.pickupAddress ??
-                                                ""),
-                                          ],
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
                                             const Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
                                                 Text(
-                                                  "Vị trí kết thúc",
+                                                  "Vị trí đón khách",
                                                   style: TextStyle(
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.bold),
                                                 ),
-                                                Text("5km",
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                    )),
                                               ],
                                             ),
-                                            Text(widget.socketMsg
-                                                    ?.destinationAddress ??
+                                            Text(widget
+                                                    .socketMsg?.pickupAddress ??
                                                 ""),
                                           ],
                                         ),
@@ -269,17 +336,27 @@ class _EndRideScreen extends State<EndRideScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: Colors.yellow),
                               ),
                               child: ConfirmButton(
-                                  onPressed: () => {confirmFinish()},
-                                  text: "Đã đến nơi, kết thúc chuyến đi"),
+                                  onPressed: () => {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    StartRideScreen(
+                                                      socket: widget.socket,
+                                                      socketMsg:
+                                                          widget.socketMsg,
+                                                    )))
+                                      },
+                                  text: "Xác nhận đón khách"),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -295,7 +372,7 @@ class _EndRideScreen extends State<EndRideScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.near_me,
                           color: Colors.blue,
                         ),

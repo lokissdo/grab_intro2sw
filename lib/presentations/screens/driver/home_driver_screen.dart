@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:grab/controller/map_controller.dart';
+import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/screens/driver/accept_ride_screen.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -9,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:grab/presentations/screens/search_destination_screen.dart';
 import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
@@ -29,17 +28,12 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
   bool isSwitchedOn = false; // Initial state is "on"
   double currentProgress = 0.0;
   Timer? progressBarTimer;
+  SocketMsgModel? socketMsg;
   IO.Socket? socket;
-  bool haveRide = false;
   Position? currentPosition;
   Set<Marker> markers = {};
-  String? customerId;
-  String? customerSocketId;
-  LatLng? customerPosition;
-  bool acceptRide = false;
-  Polyline _polylines = Polyline(polylineId: const PolylineId(''));
-  Completer<GoogleMapController> _mapController = Completer();
-
+  final Completer<GoogleMapController> _mapController = Completer();
+  String? driverId;
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -78,27 +72,43 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.6:3000',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .build(),
     );
 
-    socket?.connect();
     socket?.onConnect((_) {
       print('Connected to server');
     });
+
+    socket?.on('connected', (msg) {
+      setState(() {
+        driverId = msg['id'];
+      });
+    });
+
+    socket?.connect();
+
     socket?.on('request_ride', (msg) {
       setState(() {
-        haveRide = true;
-        customerId = msg['customerId'];
-        customerSocketId = msg['id'];
-        customerPosition =
-            LatLng(msg['position']['lat'], msg['position']['lng']);
+        socketMsg = SocketMsgModel.fromJson(msg);
+        socketMsg?.driverPosition =
+            LatLng(currentPosition!.latitude, currentPosition!.longitude);
+        socketMsg?.driverId = auth.currentUser?.uid;
+        socketMsg?.driverSocketId = driverId;
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AcceptRideScreen(
+                      socket: socket,
+                      socketMsg: socketMsg,
+                    )));
       });
       print(msg);
     });
+
     socket?.onDisconnect((_) => {
           print('Disconnected from server'),
           socket?.emit('user_disconnect', {
@@ -107,46 +117,10 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
         });
   }
 
-  void _startRoute(Polyline polyline) async {
-    GoogleMapController controller = await _mapController.future;
-    List<LatLng> points = polyline!.points;
-
-    int index = 0;
-
-    void updateStateWithDelay() {
-      if (index < points.length) {
-        socket?.emit('send_location', {
-          'customerId': customerId,
-          'driverId': auth.currentUser!.uid,
-          'position': {
-            'lat': points[index].latitude,
-            'lng': points[index].longitude
-          }
-        });
-        controller.animateCamera(CameraUpdate.newCameraPosition(
-            CameraPosition(target: points[index], zoom: 15)));
-        setState(() {
-          markers.add(Marker(
-            markerId: const MarkerId('currentLocation'),
-            position: points[index],
-            infoWindow: const InfoWindow(title: 'Current Location'),
-          ));
-        });
-
-        Timer(Duration(seconds: 5), () {
-          index++;
-          updateStateWithDelay();
-        });
-      }
-    }
-
-    updateStateWithDelay();
-  }
-
   void updateProgressBar() {
     const interval = Duration(milliseconds: 10);
     progressBarTimer = Timer.periodic(interval, (timer) {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           currentProgress = (currentProgress + 1) % 101;
         });
@@ -188,9 +162,6 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                       onMapCreated: (controller) =>
                           _mapController.complete(controller),
                       markers: markers,
-                      polylines: {
-                        if (_polylines.polylineId != '') _polylines,
-                      },
                     ),
                     Positioned(
                       right: 50,
@@ -205,11 +176,11 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                               color: Colors.grey.withOpacity(0.5),
                               spreadRadius: 2,
                               blurRadius: 5,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         child: Observer(
                           builder: (_) => GestureDetector(
                             onTap: () {
@@ -247,15 +218,15 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                               : 'Chế độ nhận chuyến đã tắt',
                           style: MyStyles.boldTextStyle,
                         )),
-                        SizedBox(height: 30),
-                        isSwitchedOn && !haveRide && !acceptRide
+                        const SizedBox(height: 30),
+                        isSwitchedOn
                             ? Column(
                                 children: [
-                                  Center(
+                                  const Center(
                                       child: ProgressBar(width: 30, height: 5)),
-                                  Row(
+                                  const Row(
                                     children: [
-                                      const Image(
+                                      Image(
                                         image: AssetImage(
                                             'assets/icons/grab_bike.png'),
                                         width: 30,
@@ -280,81 +251,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                   )
                                 ],
                               )
-                            : isSwitchedOn && haveRide && !acceptRide
-                                ? AlertDialog(
-                                    title: Text('Have new ride request'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text('You have a ride request.'),
-                                        SizedBox(height: 20),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                socket?.emit('accept_ride', {
-                                                  'customerId': customerId,
-                                                  'driverId':
-                                                      auth.currentUser!.uid,
-                                                  'customerSocketId':
-                                                      customerSocketId
-                                                });
-
-                                                setState(() {
-                                                  acceptRide = true;
-                                                  MapController()
-                                                      .getPolylinePoints(
-                                                          GeoPoint(
-                                                              currentPosition!
-                                                                  .latitude,
-                                                              currentPosition!
-                                                                  .longitude),
-                                                          GeoPoint(
-                                                              customerPosition!
-                                                                  .latitude,
-                                                              customerPosition!
-                                                                  .longitude))
-                                                      .then((polylinePoints) =>
-                                                          MapController()
-                                                              .generatePolylineFromPoint(
-                                                                  polylinePoints)
-                                                              .then(
-                                                                  (polyline) =>
-                                                                      {
-                                                                        _startRoute(
-                                                                            polyline),
-                                                                        _polylines =
-                                                                            polyline
-                                                                      }));
-
-                                                  markers.add(Marker(
-                                                    markerId: const MarkerId(
-                                                        'customerLocation'),
-                                                    position: LatLng(
-                                                        customerPosition!
-                                                            .latitude,
-                                                        customerPosition!
-                                                            .longitude),
-                                                    infoWindow: const InfoWindow(
-                                                        title:
-                                                            'Customer Location'),
-                                                  ));
-                                                });
-                                              },
-                                              child: Text('Accept'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () {},
-                                              child: Text('Decline'),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Container(),
+                            : Container(),
                       ]),
                     ),
                     Positioned(

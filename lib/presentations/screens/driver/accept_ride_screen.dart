@@ -1,27 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/screens/driver/start_pickup_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
-import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/presentations/widget/navbar_accept_ride.dart';
 import 'package:grab/utils/constants/styles.dart';
-import 'package:grab/utils/constants/themes.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class AcceptRideScreen extends StatefulWidget {
-  const AcceptRideScreen({Key? key}) : super(key: key);
+  IO.Socket? socket;
+  SocketMsgModel? socketMsg;
+
+  AcceptRideScreen({Key? key, required this.socket, required this.socketMsg})
+      : super(key: key);
 
   @override
   State<AcceptRideScreen> createState() => _FinishRideScreenState();
 }
 
 class _FinishRideScreenState extends State<AcceptRideScreen> {
-  int selectedPayemntMethodIndex = -1;
+  int selectedPaymentMethodIndex = -1;
   final String CASH_PAYMENT_NAME = 'cash';
+  CustomerModel? fakerCustomerData;
 
-    CustomerModel? fakerCustomerData ;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  void acceptRide() {
+    widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return StartPickupScreen(
+        socket: widget.socket,
+        socketMsg: widget.socketMsg,
+      );
+    }));
   }
 
   Widget buildCard(String imagePath, String text) {
@@ -70,8 +86,8 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       NavBarAcceptRide(title: "Khách hàng đang tìm bạn"),
-                       const SizedBox(height: 30),
-                       Row(
+                      const SizedBox(height: 30),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -80,7 +96,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                           ),
                           Text(
                             fakerCustomerData?.phoneNumber ?? "",
-                            style:MyStyles.boldTextStyle,
+                            style: MyStyles.boldTextStyle,
                           )
                         ],
                       ),
@@ -111,7 +127,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                               ],
                             ),
                             SizedBox(width: 10),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -121,13 +137,14 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Vị trí bắt đầu",
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(widget.socketMsg?.pickupAddress ??
+                                          ""),
                                     ],
                                   ),
                                   Column(
@@ -150,7 +167,9 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                               )),
                                         ],
                                       ),
-                                      Text("168 Âu Dương Lân, P3, Q8, HCM"),
+                                      Text(widget
+                                              .socketMsg?.destinationAddress ??
+                                          ""),
                                     ],
                                   ),
                                 ],
@@ -199,7 +218,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {},
+                              onPressed: () => {acceptRide()},
                               text: "Đồng ý nhận chuyến đi"),
                           SizedBox(
                             height: 10,
