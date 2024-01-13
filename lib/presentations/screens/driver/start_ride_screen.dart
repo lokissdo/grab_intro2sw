@@ -88,6 +88,7 @@ class _StartRideScreen extends State<StartRideScreen> {
       }
       if (index < points.length) {
         widget.socketMsg?.driverPosition = points[index];
+        widget.socket?.emit('send_location', widget.socketMsg?.toJson());
 
         controller.animateCamera(CameraUpdate.newCameraPosition(
             CameraPosition(target: points[index], zoom: 15)));
@@ -99,7 +100,7 @@ class _StartRideScreen extends State<StartRideScreen> {
           ));
         });
 
-        Timer(Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 5), () {
           index++;
           updateStateWithDelay();
         });
@@ -174,14 +175,14 @@ class _StartRideScreen extends State<StartRideScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(
+                                padding: const EdgeInsets.all(
                                     10), // This adds 10 pixels of padding on all sides
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     // Customer name aligned to the left
-                                    Align(
+                                    const Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         "Customer Name", // Replace with your dynamic customer name
@@ -214,7 +215,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                               ),
                                             ),
                                             child: IconButton(
-                                              icon: Icon(
+                                              icon: const Icon(
                                                 Icons.message,
                                                 color: Colors.yellow,
                                               ),
@@ -223,7 +224,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                               },
                                             ),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                               width:
                                                   8), // Space between the icons
                                           Container(
@@ -237,7 +238,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                               ),
                                             ),
                                             child: IconButton(
-                                              icon: Icon(
+                                              icon: const Icon(
                                                 Icons.local_phone,
                                                 color: Colors.yellow,
                                               ),
@@ -278,7 +279,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         mainAxisAlignment:
@@ -290,7 +291,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
+                                              const Text(
                                                 "Vị trí bắt đầu",
                                                 style: TextStyle(
                                                     fontSize: 20,
@@ -306,7 +307,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Row(
+                                              const Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
@@ -335,7 +336,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(4),
@@ -346,7 +347,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                         {doesStartRoute = true, startRoute()},
                                     text: "Bắt đầu chuyến đi"),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -362,7 +363,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.near_me,
                           color: Colors.blue,
                         ),

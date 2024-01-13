@@ -31,7 +31,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   late Future<Object>? _fetchData;
   bool isContainerVisible = true;
-  Polyline _polyline = Polyline(polylineId: const PolylineId(''));
+  final Polyline _polyline = const Polyline(polylineId: PolylineId(''));
   late Timer timer;
   Position? currentPosition;
   Set<Marker> markers = {};
@@ -125,7 +125,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
           ));
         });
 
-        timer = Timer(Duration(seconds: 5), () {
+        timer = Timer(const Duration(seconds: 5), () {
           index++;
           updateStateWithDelay();
         });
@@ -135,6 +135,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
     updateStateWithDelay();
   }
 
+  @override
   void dispose() {
     timer.cancel();
     super.dispose();
@@ -158,7 +159,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                             style: TextStyle(fontSize: 20));
                       } else if (snapshot.hasError) {
                         return Text("Error: ${snapshot.error}",
-                            style: TextStyle(fontSize: 20));
+                            style: const TextStyle(fontSize: 20));
                       } else {
                         Polyline polyline = snapshot.data as Polyline;
                         return GoogleMap(
@@ -173,7 +174,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                             _mapController.complete(controller);
                             startRoute(polyline);
                           },
-                          polylines: Set<Polyline>.from([polyline]),
+                          polylines: <Polyline>{polyline},
                           markers: markers,
                         );
                       }
@@ -218,7 +219,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: EdgeInsets.all(
+                              padding: const EdgeInsets.all(
                                   10), // This adds 10 pixels of padding on all sides
                               child: Row(
                                 mainAxisAlignment:
@@ -246,7 +247,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                             ),
                                           ),
                                           child: IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.message,
                                               color: Colors.yellow,
                                             ),
@@ -255,7 +256,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                             },
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                             width:
                                                 8), // Space between the icons
                                         Container(
@@ -269,7 +270,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                             ),
                                           ),
                                           child: IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.local_phone,
                                               color: Colors.yellow,
                                             ),
@@ -289,9 +290,9 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Column(
+                                  const Column(
                                     children: [
-                                      const Image(
+                                      Image(
                                         image: AssetImage(
                                             'assets/icons/location1.png'),
                                         width: 25,
@@ -299,7 +300,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       mainAxisAlignment:
@@ -336,7 +337,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(4),
@@ -356,7 +357,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                       },
                                   text: "Xác nhận đón khách"),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -372,7 +373,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.near_me,
                           color: Colors.blue,
                         ),
