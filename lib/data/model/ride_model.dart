@@ -7,7 +7,7 @@ enum RideStatus { cancel, waiting, moving, completed }
 class RideModel {
   static String collectionName = 'rides';
   RideModel({
-    required this.id,
+    this.id,
     required this.customerId,
     required this.driverId,
     required this.serviceId,
@@ -19,9 +19,9 @@ class RideModel {
     required this.status,
     this.feedback,
   });
-  String id;
+  String? id;
   String customerId;
-  String driverId;
+  String? driverId;
   String serviceId;
   AddressModel startLocation;
   AddressModel endLocation;
@@ -38,8 +38,8 @@ class RideModel {
       customerId: map["customerId"],
       serviceId: map["serviceId"],
       fare: map["fare"] as double,
-      startLocation:AddressModel.fromJson( map["startLocation"]),
-      endLocation:AddressModel.fromJson( map["endLocation"]),
+      startLocation: AddressModel.fromJson(map["startLocation"]),
+      endLocation: AddressModel.fromJson(map["endLocation"]),
       startTime: map["startTime"] as Timestamp,
       endTime: map["endTime"] as Timestamp,
       status: RideStatus.values.byName(map["status"]),
@@ -60,7 +60,7 @@ class RideModel {
       "endLocation": endLocation.toJson(),
       "startTime": startTime,
       "endTime": endTime,
-      "status":status.name,
+      "status": status.name,
       "feedback": feedback?.toJson(),
     };
   }

@@ -8,11 +8,11 @@ import 'package:grab/data/repository/ride_repository.dart';
 class RideController {
   final RideRepository rideRepo = getIt.get<RideRepository>();
 
-  Future<String> createRide(SocketMsgModel msg) async {
+  Future<String> createRide(SocketMsgModel msg,
+      {RideStatus rideStatus = RideStatus.waiting}) async {
     RideModel ride = RideModel(
-      id: "1",
       customerId: msg.customerId as String,
-      driverId: msg.driverId as String,
+      driverId: msg.driverId,
       serviceId: "1",
       startLocation: AddressModel(
           coordinates:
@@ -22,12 +22,12 @@ class RideController {
           coordinates: GeoPoint(
               msg.destinationPoint!.latitude, msg.destinationPoint!.longitude),
           stringName: msg.destinationAddress as String),
-      startTime: Timestamp.fromMicrosecondsSinceEpoch(
+      startTime: Timestamp.fromMillisecondsSinceEpoch(
           DateTime.now().millisecondsSinceEpoch),
-      endTime: Timestamp.fromMicrosecondsSinceEpoch(
+      endTime: Timestamp.fromMillisecondsSinceEpoch(
           DateTime.now().millisecondsSinceEpoch),
       fare: 0,
-      status: RideStatus.waiting,
+      status: rideStatus,
       feedback: null,
     );
     return rideRepo.createRide(ride);

@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/controller/map_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
+import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
@@ -12,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class FindDriverScreen extends StatefulWidget {
-  const FindDriverScreen({Key? key});
+  const FindDriverScreen({super.key});
 
   @override
   State<FindDriverScreen> createState() => _FindDriverScreenState();
@@ -20,7 +22,7 @@ class FindDriverScreen extends StatefulWidget {
 
 class _FindDriverScreenState extends State<FindDriverScreen> {
   late Map<PolylineId, Polyline> _polylines;
-  Completer<GoogleMapController> _mapController = Completer();
+  final Completer<GoogleMapController> _mapController = Completer();
   double currentProgress = 0.0;
   Timer? progressBarTimer;
   IO.Socket? socket;
@@ -30,6 +32,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   LatLng? driverPosition;
   FirebaseAuth auth = FirebaseAuth.instance;
   SocketMsgModel? socketMsg = SocketMsgModel();
+  RideController rideController = RideController();
 
   @override
   void initState() {
@@ -84,11 +87,11 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
       });
     });
 
-    GoogleMapController? _controller;
+    GoogleMapController? controller;
     socket?.on('send_location', (msg) async {
-      _controller ??= await _mapController.future;
+      controller ??= await _mapController.future;
       socketMsg = SocketMsgModel.fromJson(msg);
-      _controller!.moveCamera(CameraUpdate.newLatLng(LatLng(
+      controller!.moveCamera(CameraUpdate.newLatLng(LatLng(
           socketMsg!.driverPosition!.latitude,
           socketMsg!.driverPosition!.longitude)));
       setState(() {
@@ -127,7 +130,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   Future<void> fitPolylineBounds(List<GeoPoint> geoPoints) async {
     final GoogleMapController controller = await _mapController.future;
-    var bounds;
+    LatLngBounds bounds;
     GeoPoint start = geoPoints[0];
     GeoPoint end = geoPoints[1];
 
@@ -171,6 +174,42 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
     }
   }
 
+  void cancelRide() {
+    rideController.updateStatusById(
+        socketMsg?.rideId as String, RideStatus.cancel);
+    setState(() {
+      confirmRide = false;
+    });
+  }
+
+  void requestRide(
+    GeoPoint pickup,
+    GeoPoint destination,
+    String? destinationAddress,
+    String? pickupAddress,
+  ) async {
+    confirmRide = true;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    socketMsg?.customerId = user?.uid;
+    socketMsg?.customerPosition = LatLng(pickup.latitude, pickup.longitude);
+    socketMsg?.destinationAddress = destinationAddress;
+    socketMsg?.pickupAddress = pickupAddress;
+    socketMsg?.pickupPoint = LatLng(pickup.latitude, pickup.longitude);
+    socketMsg?.destinationPoint =
+        LatLng(destination.latitude, destination.longitude);
+
+    if (socketMsg?.rideId == null) {
+      String id = await rideController.createRide(socketMsg as SocketMsgModel);
+      socketMsg?.rideId = id;
+    } else {
+      await rideController.updateStatusById(
+          socketMsg?.rideId as String, RideStatus.waiting);
+    }
+
+    socket?.emit('request_ride', socketMsg?.toJson());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +231,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
             List<GeoPoint> geoPoints = data?[0] as List<GeoPoint>;
             Polyline polyline = data?[1] as Polyline;
 
-            _polylines = Map<PolylineId, Polyline>();
+            _polylines = <PolylineId, Polyline>{};
             _polylines[polyline.polylineId] = polyline;
 
             GeoPoint pickup = geoPoints[0];
@@ -253,7 +292,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.yellow,
+                      backgroundColor: Colors.yellow,
                       padding: EdgeInsets.zero,
                     ),
                     child: const Text(
@@ -263,7 +302,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                   ),
                 ),
                 if (haveDriver == true)
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -302,14 +341,27 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                               width: 30,
                               height: 30,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
-                            Expanded(
+                            const Expanded(
                                 child: Text(
                               "Đang tìm tài xế...",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                              ),
+                              child: const Text(
+                                'Huỷ chuyến',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12),
+                              ),
+                              onPressed: () {
+                                cancelRide();
+                              },
+                            ),
                           ],
                         ),
                         ProgressBar(
@@ -322,7 +374,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                     ),
                   )
                 else
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -338,23 +390,11 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                       ),
                       onPressed: () {
                         setState(() {
-                          confirmRide = true;
-                          FirebaseAuth auth = FirebaseAuth.instance;
-                          User? user = auth.currentUser;
-
-                          socketMsg?.customerId = user?.uid;
-                          socketMsg?.customerPosition =
-                              LatLng(pickup.latitude, pickup.longitude);
-                          socketMsg?.destinationAddress =
-                              appState.destinationAddress.stringName;
-                          socketMsg?.pickupAddress =
-                              appState.pickupAddress.stringName;
-                          socketMsg?.pickupPoint =
-                              LatLng(pickup.latitude, pickup.longitude);
-                          socketMsg?.destinationPoint = LatLng(
-                              destination.latitude, destination.longitude);
-                          
-                          socket?.emit('request_ride', socketMsg?.toJson());
+                          requestRide(
+                              pickup,
+                              destination,
+                              appState.destinationAddress.stringName,
+                              appState.pickupAddress.stringName);
                         });
                         updateProgressBar();
                       },
