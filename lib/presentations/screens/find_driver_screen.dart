@@ -353,7 +353,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                               LatLng(pickup.latitude, pickup.longitude);
                           socketMsg?.destinationPoint = LatLng(
                               destination.latitude, destination.longitude);
-                          
+                          socketMsg?.distance = appState.distance;
                           socket?.emit('request_ride', socketMsg?.toJson());
                         });
                         updateProgressBar();

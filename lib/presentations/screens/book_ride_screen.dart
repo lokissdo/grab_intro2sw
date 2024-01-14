@@ -52,30 +52,30 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       },
       child: Card(
         elevation: 0,
-        color: Color.fromARGB(255, 252, 251, 236),
+        color: const Color.fromARGB(255, 252, 251, 236),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.0),
           side: BorderSide(
             width: 2.0,
             color: selectedPaymentMethodIndex == index
-                ? Color.fromARGB(
+                ? const Color.fromARGB(
                     255, 243, 233, 33) // Border color when the card is selected
-                : Color.fromARGB(255, 252, 251, 236),
+                : const Color.fromARGB(255, 252, 251, 236),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Image(
               image: AssetImage(imagePath),
               width: 70,
               height: 70,
             ),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Text(
               text,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
           ],
         ),
@@ -99,7 +99,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      NavBar(title: "Đặt xe"),
+                      const NavBar(title: "Đặt xe"),
                       const SizedBox(height: 30),
                       SizedBox(
                         height: 130, // Set the desired height for the Row
@@ -126,7 +126,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment:
@@ -137,7 +137,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Vị trí bắt đầu",
                                         style: TextStyle(
                                             fontSize: 20,
@@ -154,7 +154,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          const Text(
                                             "Vị trí kết thúc",
                                             style: TextStyle(
                                                 fontSize: 20,
@@ -169,22 +169,24 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState ==
                                                   ConnectionState.waiting) {
-                                                return Text(
+                                                return const Text(
                                                     "Calculating distance...",
                                                     style: TextStyle(
                                                         fontSize: 20));
                                               } else if (snapshot.hasError) {
                                                 return Text(
                                                     "Error: ${snapshot.error}",
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                         fontSize: 20));
                                               } else {
                                                 String distanceText =
                                                     "${snapshot.data?['distance']}"; // Use the correct key for distance
+                                                appState
+                                                    .setDistance(distanceText);
                                                 return Text(
                                                   distanceText,
-                                                  style:
-                                                      TextStyle(fontSize: 20),
+                                                  style: const TextStyle(
+                                                      fontSize: 20),
                                                 );
                                               }
                                             },
@@ -239,7 +241,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Áp dụng giảm giá!"),
+                          const Text("Áp dụng giảm giá!"),
                           IconButton(
                             onPressed: () async {
                               // Navigate to PromotionsScreen and wait for result
@@ -262,7 +264,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 discountPercent = selectedPromotionPercent;
                               });
                             },
-                            icon: Icon(
+                            icon: const Icon(
                               Icons
                                   .arrow_forward, // Replace with your desired icon
                               size: 24,
@@ -274,10 +276,10 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                       Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 30,
                             ),
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
@@ -286,10 +288,10 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 )
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Giá cước"),
@@ -300,7 +302,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Khuyến mãi"),
+                                const Text("Khuyến mãi"),
                                 // Display discount amount based on discountPercent
                                 Text(discountPercent > 0
                                     ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}"
@@ -346,7 +348,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              FindDriverScreen()),
+                                              const FindDriverScreen()),
                                     )
                                   },
                               text: "Xác nhận chuyến đi")
