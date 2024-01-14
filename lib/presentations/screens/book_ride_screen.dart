@@ -143,14 +143,17 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(appState.pickupAddress.stringName),
+                                      Text(
+                                        appState.pickupAddress.stringName,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
@@ -160,39 +163,12 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          FutureBuilder(
-                                            future: MapController().getDistance(
-                                              appState.pickupAddress.placeId,
-                                              appState
-                                                  .destinationAddress.placeId,
-                                            ),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return Text(
-                                                    "Calculating distance...",
-                                                    style: TextStyle(
-                                                        fontSize: 20));
-                                              } else if (snapshot.hasError) {
-                                                return Text(
-                                                    "Error: ${snapshot.error}",
-                                                    style: TextStyle(
-                                                        fontSize: 20));
-                                              } else {
-                                                String distanceText =
-                                                    "${snapshot.data?['distance']}"; // Use the correct key for distance
-                                                return Text(
-                                                  distanceText,
-                                                  style:
-                                                      TextStyle(fontSize: 20),
-                                                );
-                                              }
-                                            },
-                                          ),
                                         ],
                                       ),
-                                      Text(appState
-                                          .destinationAddress.stringName),
+                                      Text(
+                                        appState.destinationAddress.stringName,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -202,8 +178,49 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 30,
+                        width: 15,
                       ),
+                     Padding(
+                      padding: EdgeInsets.only(right: 30, left: 0, top: 20, bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Khoảng cách:",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          FutureBuilder(
+                            future: MapController().getDistance(
+                              appState.pickupAddress.placeId,
+                              appState.destinationAddress.placeId,
+                            ),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Text(
+                                  "Đang tính ...",
+                                  style: TextStyle(fontSize: 20),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text(
+                                  "Error: ${snapshot.error}",
+                                  style: TextStyle(fontSize: 20),
+                                );
+                              } else {
+                                String distanceText = "${snapshot.data?['distance']}"; // Use the correct key for distance
+                                return Text(
+                                  distanceText,
+                                  style: TextStyle(fontSize: 20),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                      
                       Card(
                           elevation: 0,
                           color: const Color.fromARGB(255, 252, 251, 236),
@@ -275,7 +292,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(
-                              height: 30,
+                              height: 0,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -337,21 +354,25 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ],
                       ),
                       Expanded(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ConfirmButton(
-                              onPressed: () => {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              FindDriverScreen()),
-                                    )
-                                  },
-                              text: "Xác nhận chuyến đi")
-                        ],
-                      ))
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ConfirmButton(
+                              onPressed: selectedPaymentMethodIndex == -1
+                                  ? null // Disable the button if no payment method is selected
+                                  : () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FindDriverScreen(),
+                                        ),
+                                      );
+                                    },
+                              text: "Xác nhận chuyến đi",
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
