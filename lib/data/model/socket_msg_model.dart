@@ -14,6 +14,7 @@ class SocketMsgModel {
   LatLng? driverPosition;
 
   SocketMsgModel({
+    this.rideId,
     this.customerId,
     this.driverId,
     this.customerSocketId,
@@ -28,6 +29,7 @@ class SocketMsgModel {
 
   static SocketMsgModel fromJson(Map<String, dynamic> json) {
     return SocketMsgModel(
+      rideId: json['rideId'] ?? '',
       customerId: json['customerId'] ?? '',
       driverId: json['driverId'] ?? '',
       customerSocketId: json['customerSocketId'] ?? '',
@@ -55,6 +57,7 @@ class SocketMsgModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'rideId': rideId,
       'customerId': customerId,
       'driverId': driverId,
       'customerSocketId': customerSocketId,

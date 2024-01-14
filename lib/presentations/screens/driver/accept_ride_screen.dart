@@ -30,11 +30,12 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
     super.initState();
   }
 
-  void acceptRide() {
+  void acceptRide() async {
+    String id =
+        await rideController.createRide(widget.socketMsg as SocketMsgModel);
+    widget.socketMsg?.rideId = id;
     widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
 
-    widget.socketMsg?.rideId = rideController
-        .createRide(widget.socketMsg as SocketMsgModel) as String?;
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return StartPickupScreen(
         socket: widget.socket,
