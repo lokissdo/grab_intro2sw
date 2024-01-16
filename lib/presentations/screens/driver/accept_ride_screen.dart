@@ -4,6 +4,7 @@ import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_pickup_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
+import 'package:grab/presentations/widget/expandable_address_display.dart';
 import 'package:grab/presentations/widget/navbar_accept_ride.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -85,7 +86,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      NavBarAcceptRide(title: "Khách hàng đang tìm bạn"),
+                      NavBarAcceptRide(title: "Đã tìm thấy chuyến đi"),
                       const SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +116,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                   height: 25,
                                 ),
                                 CustomPaint(
-                                  size: const Size(1, 60),
+                                  size: const Size(1, 100),
                                   painter: DashedLineVerticalPainter(),
                                 ),
                                 const Image(
@@ -129,90 +130,49 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                             SizedBox(width: 10),
                             Expanded(
                               child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Vị trí bắt đầu",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(widget.socketMsg?.pickupAddress ??
-                                          ""),
-                                    ],
+                                  ExpandableAddressWidget(
+                                    title: "Vị trí bắt đầu",
+                                    address: widget.socketMsg?.pickupAddress ?? "",
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Vị trí kết thúc",
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text("5km",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              )),
-                                        ],
-                                      ),
-                                      Text(widget
-                                              .socketMsg?.destinationAddress ??
-                                          ""),
-                                    ],
+                                  SizedBox(height: 50), // Adjust the height as needed for spacing
+                                  ExpandableAddressWidget(
+                                    title: "Vị trí kết thúc",
+                                    address: widget.socketMsg?.destinationAddress ?? "",
                                   ),
                                 ],
                               ),
                             ),
+
                           ],
                         ),
                       ),
                       const SizedBox(
-                        height: 30,
+                        width: 70,
                       ),
-                      Card(
-                          elevation: 0,
-                          color: const Color.fromARGB(255, 252, 251, 236),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Set the border radius
-                            side: const BorderSide(
-                                width: 2.0,
-                                color: Color.fromARGB(
-                                    255, 255, 255, 47)), // Set the border color
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                right: 30, left: 30, top: 10, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Grab Bike",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Image(
-                                  image:
-                                      AssetImage('assets/icons/grab_bike.png'),
-                                  width: 70,
-                                  height: 70,
-                                )
-                              ],
+                     const Padding(
+                      padding: EdgeInsets.only(right: 30, left: 0, top: 20, bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                           Text(
+                            "Khoảng cách:",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                          )),
+                          ),
+                          Text(
+                              "4km",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          
+                        ],
+                      ),
+                    ),
+                      
                       Expanded(
                           child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,

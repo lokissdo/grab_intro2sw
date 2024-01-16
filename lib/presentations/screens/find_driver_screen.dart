@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab/controller/map_controller.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
@@ -63,7 +64,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.2:3000',
+      'http://192.168.0.3:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -248,16 +249,16 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                   },
                 ),
                 Positioned(
-                  top: 20,
+                  top: 40,
                   left: 10,
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.yellow,
+                      primary: Colors.black,
                       padding: EdgeInsets.zero,
                     ),
                     child: const Text(
-                      'Back',
+                      'Hủy',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -322,44 +323,41 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                     ),
                   )
                 else
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16.0), // Adjust the padding as needed
+                        child: ConfirmButton(
+                          onPressed: confirmRide
+                            ? null
+                            : () {
+                                setState(() {
+                                  confirmRide = true;
+                                  FirebaseAuth auth = FirebaseAuth.instance;
+                                  User? user = auth.currentUser;
+
+                                  socketMsg?.customerId = user?.uid;
+                                  socketMsg?.customerPosition =
+                                      LatLng(pickup.latitude, pickup.longitude);
+                                  socketMsg?.destinationAddress =
+                                      appState.destinationAddress.stringName;
+                                  socketMsg?.pickupAddress = appState.pickupAddress.stringName;
+                                  socketMsg?.pickupPoint = LatLng(pickup.latitude, pickup.longitude);
+                                  socketMsg?.destinationPoint =
+                                      LatLng(destination.latitude, destination.longitude);
+
+                                  socket?.emit('request_ride', socketMsg?.toJson());
+                                });
+                                updateProgressBar();
+                              },
+                          text: "Xác nhận chuyến đi",
                         ),
-                        backgroundColor: Colors.yellow,
                       ),
-                      child: const Text(
-                        'Confirm ride',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          confirmRide = true;
-                          FirebaseAuth auth = FirebaseAuth.instance;
-                          User? user = auth.currentUser;
-
-                          socketMsg?.customerId = user?.uid;
-                          socketMsg?.customerPosition =
-                              LatLng(pickup.latitude, pickup.longitude);
-                          socketMsg?.destinationAddress =
-                              appState.destinationAddress.stringName;
-                          socketMsg?.pickupAddress =
-                              appState.pickupAddress.stringName;
-                          socketMsg?.pickupPoint =
-                              LatLng(pickup.latitude, pickup.longitude);
-                          socketMsg?.destinationPoint = LatLng(
-                              destination.latitude, destination.longitude);
-
-                          socket?.emit('request_ride', socketMsg?.toJson());
-                        });
-                        updateProgressBar();
-                      },
-                    ),
+                    ],
                   ),
+                )
               ],
             );
           }
