@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:grab/utils/helpers/formatter.dart';
 
 class VehicleCard extends StatelessWidget {
   final String title;
   final String imagePath;
+  final int fare;
 
   const VehicleCard({
     Key? key,
     required this.title,
     required this.imagePath,
+    required this.fare,
+
   }) : super(key: key);
 
   @override
@@ -46,7 +50,7 @@ class VehicleCard extends StatelessWidget {
             ),
             const SizedBox(height: 8), // Add spacing between text and icon
             Text(
-              "50.000 đ",
+              Formatter.VNDFormatter(fare),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

@@ -5,11 +5,11 @@ class ServiceRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Read all services
-  Stream<List<ServiceModel>> readServices() {
-    return _firestore.collection(ServiceModel.collectionName).snapshots().map(
-        (snapshot) => snapshot.docs
-            .map((doc) => ServiceModel.fromJson(doc.data()))
-            .toList());
+   Future<List<ServiceModel>> getAllServices() async {
+    final snapshot = await _firestore.collection(ServiceModel.collectionName).get();
+    return snapshot.docs
+        .map((doc) => ServiceModel.fromJson(doc.data()))
+        .toList();
   }
 
   /// Read a specific service by ID

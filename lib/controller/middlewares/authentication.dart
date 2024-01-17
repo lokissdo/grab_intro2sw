@@ -28,6 +28,7 @@ class AuthGuard extends GetMiddleware {
         return RouteSettings(name: AppLinks.HOMEDRIVER);
       } 
     } else {
+
       // User is not logged in or customer data is not loaded
       return RouteSettings(name: AppLinks.LOGIN);
     }
