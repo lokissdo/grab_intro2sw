@@ -25,6 +25,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
   List<PaymentMethodModel> paymentMethods = [];
   Map<String, dynamic> distance = {};
   String selectedCard = "Grab Bike";
+  int fullCost = 50000;
   @override
   void initState() {
     super.initState();
@@ -333,8 +334,8 @@ Future<void> _showCardSelectionDialog(BuildContext context) async {
                                 Text("Khuyến mãi"),
                                 // Display discount amount based on discountPercent
                                 Text(discountPercent > 0
-                                    ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}"
-                                    : "\$0"),
+                                    ? "${(fullCost * discountPercent / 100).toStringAsFixed(2)} \đ"
+                                    : "\0đ"),
                               ],
                             ),
                               SizedBox(
@@ -348,7 +349,7 @@ Future<void> _showCardSelectionDialog(BuildContext context) async {
                                   style: TextStyle(fontSize: 25),
                                 ),
                                 Text(
-                                  "20",
+                                  "${(fullCost * (100 - discountPercent) / 100).toStringAsFixed(2)} \đ",
                                   style: TextStyle(fontSize: 25),
                                 )
                               ],
