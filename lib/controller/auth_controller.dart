@@ -25,11 +25,14 @@ class AuthController extends GetxController {
   CustomerModel? customer;
   DriverModel? driver;
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
     _user = Rx<User?>(auth.currentUser);
     _user.bindStream(auth.authStateChanges());
-    ever(_user, (_) => loadUserData());
+    ever(_user, (_) async {
+      await loadUserData();
+      Get.offNamed('/check-auth');
+    });
     ever(_user, loginRedirect);
   }
 
@@ -119,6 +122,8 @@ class AuthController extends GetxController {
       try {
         customer = await cusRepo.readCustomer(_user.value!.uid);
         driver = await driverRepo.readDriver(_user.value!.uid);
+        print(driver);
+        print(customer);
       } catch (e) {
         // Handle errors or set default values
         debugPrint("Error loading customer data: $e");
