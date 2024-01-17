@@ -9,6 +9,7 @@ import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -20,6 +21,7 @@ class FindDriverScreen extends StatefulWidget {
 }
 
 class _FindDriverScreenState extends State<FindDriverScreen> {
+  bool isContainerVisible = true;
   late Map<PolylineId, Polyline> _polylines;
   Completer<GoogleMapController> _mapController = Completer();
   double currentProgress = 0.0;
@@ -248,34 +250,37 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                     fitPolylineBounds(geoPoints);
                   },
                 ),
-                Positioned(
-                  top: 40,
-                  left: 10,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.black,
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: const Text(
-                      'Hủy',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
                 if (haveDriver == true)
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        backgroundColor: Colors.yellow,
+                  
+
+
+                  Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // IconButton to toggle visibility
+                    Container(
+                      decoration: BoxDecoration(
+                        color: context.scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      onPressed: () => {},
-                      child: Container(
+                      child: IconButton(
+                        icon: Icon(
+                          isContainerVisible
+                              ? Icons.arrow_downward
+                              : Icons.arrow_upward,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isContainerVisible = !isContainerVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    Visibility(
+                        visible:
+                            isContainerVisible, // Control visibility based on the state variable
+                        child: Container(
                           decoration: const BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.only(
@@ -301,7 +306,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          "Honda - 12AB45678", // Replace with your dynamic customer number
+                                          "Honda 12A - 34567 ", // Replace with your dynamic customer number
                                           style: TextStyle(fontSize: 16, color: Colors.grey),
                                         ),
                                       ],
@@ -396,6 +401,8 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                                     fontSize: 16,
                                                     color: Colors.grey),
                                               ),
+                                              Text(
+                                                  ''),
                                             ],
                                           ),
                                           
@@ -422,8 +429,11 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                             ],
                           ),
                         ),
-                    ),
-                  )
+                      ),
+                    // Visibility widget containing the container
+                    
+                  ],
+                )
                 else if (confirmRide == true && haveDriver == false)
                   Container(
                     height: 110,
