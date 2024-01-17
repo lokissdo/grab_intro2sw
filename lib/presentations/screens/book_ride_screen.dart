@@ -8,6 +8,7 @@ import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/presentations/widget/vehicle_card.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/icons.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
   double discountPercent = 0.0;
   List<PaymentMethodModel> paymentMethods = [];
   Map<String, dynamic> distance = {};
-
+  String selectedCard = "Grab Bike";
   @override
   void initState() {
     super.initState();
@@ -42,6 +43,48 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       paymentMethods = methods;
     });
   }
+Future<void> _showCardSelectionDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose a card'),
+          content: Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  _updateSelectedCard("Grab Bike");
+                  Navigator.of(context).pop();
+                },
+                child: VehicleCard(
+                  title: "Grab Bike",
+                  imagePath: 'assets/icons/grab_bike.png',
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  _updateSelectedCard("Uber");
+                  Navigator.of(context).pop();
+                },
+                child: VehicleCard(
+                  title: "Uber",
+                  imagePath: 'assets/icons/grab_bike.png',
+                ),
+              ),
+              // Add more cards as needed
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateSelectedCard(String newCard) {
+    setState(() {
+      selectedCard = newCard;
+    });
+  }
+
 
   Widget buildCard(int index, String imagePath, String text) {
     return GestureDetector(
@@ -220,39 +263,29 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ],
                       ),
                     ),
-                      
-                      Card(
-                          elevation: 0,
-                          color: const Color.fromARGB(255, 252, 251, 236),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Set the border radius
-                            side: const BorderSide(
-                                width: 2.0,
-                                color: Color.fromARGB(
-                                    255, 255, 255, 47)), // Set the border color
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                right: 30, left: 30, top: 10, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Grab Bike",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Image(
-                                  image:
-                                      AssetImage('assets/icons/grab_bike.png'),
-                                  width: 70,
-                                  height: 70,
-                                )
-                              ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: 270, // Adjust the width as needed
+                            child: VehicleCard(
+                              title: selectedCard,
+                              imagePath: 'assets/icons/grab_bike.png',
                             ),
-                          )),
+                          ),
+                          IconButton(
+                            onPressed: () => _showCardSelectionDialog(context),
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              size: 24,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      
+                      
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -294,27 +327,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                             SizedBox(
                               height: 0,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Tổng",
-                                  style: TextStyle(fontSize: 25),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Giá cước"),
-                                Text(
-                                    "\$200"), // Assume this is your original price
-                              ],
-                            ),
-                            Row(
+                              Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Khuyến mãi"),
@@ -323,10 +336,27 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                     ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}"
                                     : "\$0"),
                               ],
-                            )
+                            ),
+                              SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Tổng",
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                                Text(
+                                  "20",
+                                  style: TextStyle(fontSize: 25),
+                                )
+                              ],
+                            ),
+                            
                           ]),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.start,

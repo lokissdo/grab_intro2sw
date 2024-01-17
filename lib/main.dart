@@ -6,6 +6,9 @@ import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/presentations/router.dart';
 import 'package:grab/presentations/screens/driver/end_ride_screen.dart';
 import 'package:grab/presentations/screens/driver/finish_ride_screen.dart';
+import 'package:grab/presentations/screens/driver/home_driver_screen.dart';
+import 'package:grab/presentations/screens/found_driver_screen.dart';
+import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:provider/provider.dart';
@@ -29,11 +32,11 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
-        // theme: MyTheme.myLightTheme,
-        // debugShowCheckedModeBanner: false,
-        // initialRoute: AppLinks.SPLASH,
-        // getPages: AppRoutes.pages,
-        );
+    return  GetMaterialApp(
+        theme: MyTheme.myLightTheme,
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppLinks.SPLASH,
+        getPages: AppRoutes.pages,
+    );
   }
 }
