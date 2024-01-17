@@ -19,7 +19,6 @@ class AuthController extends GetxController {
   late Rx<User?> _user;
   bool isLoging = false;
   User? get user => _user.value;
-  Rx<User?> get _user_rx => _user;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
   final DriverRepository driverRepo = getIt.get<DriverRepository>();
@@ -34,25 +33,25 @@ class AuthController extends GetxController {
       await loadUserData();
       Get.offNamed('/check-auth');
     });
-    ever(_user, loginRedirect);
+    // ever(_user, loginRedirect);
   }
 
   void onUserDataLoaded() {
     update(); // Notify listeners about user data loaded
   }
 
-  loginRedirect(User? user) {
-    Timer(Duration(seconds: isLoging ? 0 : 2), () {
-      if (user == null) {
-        isLoging = false;
-        update();
-        //Get.offAll(() => const LoginScreen());
-      } else {
-        isLoging = true;
-        update();
-        //Get.offAll(() => const HomeScreen());
-      }
-    });
+  // loginRedirect(User? user) {
+  //   Timer(Duration(seconds: isLoging ? 0 : 2), () {
+  //     if (user == null) {
+  //       isLoging = false;
+  //       update();
+  //       //Get.offAll(() => const LoginScreen());
+  //     } else {
+  //       isLoging = true;
+  //       update();
+  //       //Get.offAll(() => const HomeScreen());
+  //     }
+  //   });
   }
 
   void registerUser(email, password, name, phoneNumber) async {
