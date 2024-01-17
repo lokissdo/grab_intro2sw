@@ -220,36 +220,44 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                         )),
                         const SizedBox(height: 30),
                         isSwitchedOn
-                            ? Column(
-                                children: [
-                                  const Center(
-                                      child: ProgressBar(width: 30, height: 5)),
-                                  const Row(
-                                    children: [
-                                      Image(
-                                        image: AssetImage(
-                                            'assets/icons/grab_bike.png'),
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                          child: Text(
-                                        "Đang tìm chuyến đi...",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )),
-                                    ],
+                            ? Container(
+                                height: 110,
+                                alignment: Alignment.bottomCenter,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: const BoxDecoration(
+                                  color: Colors.yellow,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
                                   ),
-                                  ProgressBar(
-                                    width: double.infinity,
-                                    height: 5,
-                                    color: MyTheme.splash,
-                                    value: currentProgress / 100,
-                                  )
-                                ],
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Image(
+                                          image: AssetImage('assets/icons/grab_bike.png'),
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                            child: Text(
+                                          "Đang tìm chuyến đi...",
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        )),
+                                      ],
+                                    ),
+                                    ProgressBar(
+                                      width: double.infinity,
+                                      height: 5,
+                                      color: MyTheme.splash,
+                                      value: currentProgress / 100,
+                                    )
+                                  ],
+                                ),
                               )
                             : Container(),
                       ]),

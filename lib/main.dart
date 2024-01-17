@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      theme: MyTheme.myLightTheme,
-      debugShowCheckedModeBanner: false,
-      initialRoute: AppLinks.SPLASH,
-      getPages: AppRoutes.pages,
+    return  GetMaterialApp(
+        theme: MyTheme.myLightTheme,
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppLinks.SPLASH,
+        getPages: AppRoutes.pages,
     );
   }
 }

@@ -7,9 +7,11 @@ import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -21,6 +23,7 @@ class FindDriverScreen extends StatefulWidget {
 }
 
 class _FindDriverScreenState extends State<FindDriverScreen> {
+  bool isContainerVisible = true;
   late Map<PolylineId, Polyline> _polylines;
   final Completer<GoogleMapController> _mapController = Completer();
   double currentProgress = 0.0;
@@ -286,38 +289,187 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                     fitPolylineBounds(geoPoints);
                   },
                 ),
-                Positioned(
-                  top: 20,
-                  left: 10,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.yellow,
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: const Text(
-                      'Back',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
                 if (haveDriver == true)
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // IconButton to toggle visibility
+                      Container(
+                        decoration: BoxDecoration(
+                          color: context.scaffoldBackgroundColor,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        backgroundColor: Colors.yellow,
+                        child: IconButton(
+                          icon: Icon(
+                            isContainerVisible
+                                ? Icons.arrow_downward
+                                : Icons.arrow_upward,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isContainerVisible = !isContainerVisible;
+                            });
+                          },
+                        ),
                       ),
-                      onPressed: () => {},
-                      child: const Text(
-                        'Tài xế đang đón bạn',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      Visibility(
+                        visible:
+                            isContainerVisible, // Control visibility based on the state variable
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(4),
+                                  topRight: Radius.circular(20))),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Customer name and number aligned to the left
+                                    const Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Driver Name", // Replace with your dynamic customer name
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Honda 12A - 34567 ", // Replace with your dynamic customer number
+                                          style: TextStyle(
+                                              fontSize: 16, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+
+                                    // Icons aligned to the right
+                                    Row(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              Icons.message,
+                                              color: Colors.yellow,
+                                            ),
+                                            onPressed: () {
+                                              // Define the action when the button is pressed
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              Icons.local_phone,
+                                              color: Colors.yellow,
+                                            ),
+                                            onPressed: () {
+                                              // Define the action when the button is pressed
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height:
+                                    130, // Set the desired height for the Row
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        SizedBox(height: 25),
+                                        Image(
+                                          image: AssetImage(
+                                              'assets/icons/location2.png'),
+                                          width: 25,
+                                          height: 25,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(height: 20),
+                                              Text(
+                                                "Tài xế đang đến đón bạn",
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Text(
+                                                'Dự kiến đến lúc 10:00',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey),
+                                              ),
+                                              Text(''),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.yellow),
+                                ),
+                                child: ConfirmButton(
+                                    color: Colors.grey,
+                                    onPressed: () => {
+                                          //CANCEL_RIDE_SCREEM
+                                        },
+                                    text: "Hủy chuyến"),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      // Visibility widget containing the container
+                    ],
                   )
                 else if (confirmRide == true && haveDriver == false)
                   Container(
@@ -382,7 +534,6 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
-                        backgroundColor: Colors.yellow,
                       ),
                       child: const Text(
                         'Confirm ride',

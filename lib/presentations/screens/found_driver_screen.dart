@@ -1,72 +1,37 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:grab/controller/map_controller.dart';
-import 'package:grab/controller/ride_controller.dart';
-import 'package:grab/data/model/ride_model.dart';
-import 'package:grab/data/model/socket_msg_model.dart';
-import 'package:grab/presentations/screens/driver/start_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
+import 'package:grab/utils/constants/themes.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:grab/presentations/screens/search_destination_screen.dart';
 import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-
 final GlobalKey<ScaffoldState> jcbHomekey = GlobalKey();
 
-class StartPickupScreen extends StatefulWidget {
-  IO.Socket? socket;
-  SocketMsgModel? socketMsg;
-  StartPickupScreen({Key? key, required this.socket, required this.socketMsg})
-      : super(key: key);
+class FoundDriverScreen extends StatefulWidget {
+  const FoundDriverScreen({Key? key}) : super(key: key);
 
   @override
-  State<StartPickupScreen> createState() => _StartPickupScreen();
+  State<FoundDriverScreen> createState() => _FoundDriverScreen();
 }
 
-class _StartPickupScreen extends State<StartPickupScreen> {
-  final Completer<GoogleMapController> _mapController = Completer();
+class _FoundDriverScreen extends State<FoundDriverScreen> {
+  final Completer<GoogleMapController> _controller = Completer();
+
   final FirebaseAuth auth = FirebaseAuth.instance;
-  late Future<Object>? _fetchData;
+
   bool isContainerVisible = true;
-  final Polyline _polyline = const Polyline(polylineId: PolylineId(''));
-  late Timer timer;
+  
   Position? currentPosition;
   Set<Marker> markers = {};
-  RideController rideController = RideController();
-  void _addEventSocket() {
-    widget.socket?.on('accept_ride', (msg) {
-      widget.socketMsg = SocketMsgModel.fromJson(msg);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _addEventSocket();
-    _fetchData = _fetchPolyline();
     _getCurrentLocation();
-  }
-
-  Future<Object>? _fetchPolyline() async {
-    try {
-      List<LatLng> polylinePoints = await MapController().getPolylinePoints(
-          GeoPoint(widget.socketMsg!.driverPosition!.latitude,
-              widget.socketMsg!.driverPosition!.longitude),
-          GeoPoint(widget.socketMsg!.customerPosition!.latitude,
-              widget.socketMsg!.customerPosition!.longitude));
-      Polyline polyline =
-          await MapController().generatePolylineFromPoint(polylinePoints);
-
-      return polyline;
-    } catch (error) {
-      print("Error: $error");
-      return error;
-    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -105,44 +70,6 @@ class _StartPickupScreen extends State<StartPickupScreen> {
     });
   }
 
-  void startRoute(Polyline polyline) async {
-    GoogleMapController controller = await _mapController.future;
-    List<LatLng> points = polyline.points;
-
-    int index = 0;
-
-    void updateStateWithDelay() {
-      if (index < points.length) {
-        widget.socketMsg?.driverPosition = points[index];
-        print('send location ${widget.socketMsg?.driverPosition}');
-        widget.socket?.emit('send_location', widget.socketMsg?.toJson());
-
-        controller.animateCamera(CameraUpdate.newCameraPosition(
-            CameraPosition(target: points[index], zoom: 15)));
-        setState(() {
-          markers.add(Marker(
-            markerId: const MarkerId('currentLocation'),
-            position: points[index],
-            infoWindow: const InfoWindow(title: 'Current Location'),
-          ));
-        });
-
-        timer = Timer(const Duration(seconds: 5), () {
-          index++;
-          updateStateWithDelay();
-        });
-      }
-    }
-
-    updateStateWithDelay();
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,58 +80,43 @@ class _StartPickupScreen extends State<StartPickupScreen> {
           : Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                FutureBuilder(
-                    future: _fetchData,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text("Calculating distance...",
-                            style: TextStyle(fontSize: 20));
-                      } else if (snapshot.hasError) {
-                        return Text("Error: ${snapshot.error}",
-                            style: const TextStyle(fontSize: 20));
-                      } else {
-                        Polyline polyline = snapshot.data as Polyline;
-                        return GoogleMap(
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(
-                              widget.socketMsg!.pickupPoint!.latitude,
-                              widget.socketMsg!.pickupPoint!.longitude,
-                            ),
-                            zoom: 15,
-                          ),
-                          onMapCreated: (GoogleMapController controller) {
-                            _mapController.complete(controller);
-                            startRoute(polyline);
-                          },
-                          polylines: <Polyline>{polyline},
-                          markers: markers,
-                        );
-                      }
-                    }),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // IconButton to toggle visibility
-                    Container(
-                      decoration: BoxDecoration(
-                        color: context.scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          isContainerVisible
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
-                          color: Colors.grey,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            isContainerVisible = !isContainerVisible;
-                          });
-                        },
-                      ),
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      currentPosition!.latitude,
+                      currentPosition!.longitude,
                     ),
-                    Visibility(
+                    zoom: 15,
+                  ),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                  markers: markers,
+                ),
+                 Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // IconButton to toggle visibility
+                  Container(
+                    decoration: BoxDecoration(
+                      color: context.scaffoldBackgroundColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        isContainerVisible ? Icons.arrow_downward : Icons.arrow_upward,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isContainerVisible = !isContainerVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  
+                  // Visibility widget containing the container
+                  Visibility(
                         visible:
                             isContainerVisible, // Control visibility based on the state variable
                         child: Container(
@@ -229,11 +141,11 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Customer Name", // Replace with your dynamic customer name
+                                          "Driver Name", // Replace with your dynamic customer name
                                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          "Customer Number", // Replace with your dynamic customer number
+                                          "Honda - 12AB45678", // Replace with your dynamic customer number
                                           style: TextStyle(fontSize: 16, color: Colors.grey),
                                         ),
                                       ],
@@ -317,15 +229,17 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                             children: [
                                               const SizedBox(height: 20),
                                               const Text(
-                                                "Vị trí đón khách",
+                                                "Tài xế đang đến đón bạn",
                                                 style: TextStyle(
                                                     fontSize: 20,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(widget.socketMsg!
-                                                      .pickupAddress ??
-                                                  ''),
+                                              Text('Dự kiến đến lúc 10:00',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey),
+                                              ),
                                             ],
                                           ),
                                           
@@ -342,31 +256,21 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                   border: Border.all(color: Colors.yellow),
                                 ),
                                 child: ConfirmButton(
+                                  color: Colors.grey,
                                   onPressed: () => {
-                                        rideController.updateStatusById(
-                                            widget.socketMsg?.rideId as String,
-                                            RideStatus.moving),
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    StartRideScreen(
-                                                      socket: widget.socket,
-                                                      socketMsg:
-                                                          widget.socketMsg,
-                                                    )))
+                                        //CANCEL_RIDE_SCREEM
                                       },
-                                  text: "Xác nhận đón khách"),
+                                  text: "Hủy chuyến"),
                               ),
                               const SizedBox(height: 16),
                             ],
                           ),
                         ),
                       ),
-                    // Visibility widget containing the container
-                    
-                  ],
-                ),
+                ],
+              ),
+                
+                
                 Positioned(
                   right: 16,
                   bottom: 400,
@@ -376,7 +280,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.near_me,
                           color: Colors.blue,
                         ),
