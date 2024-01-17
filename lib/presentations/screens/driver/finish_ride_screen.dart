@@ -11,9 +11,11 @@ import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/icons.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class FinishRideScreen extends StatefulWidget {
@@ -82,6 +84,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -160,18 +163,18 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          const Text(
                                             "Vị trí kết thúc",
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text("5km",
-                                              style: TextStyle(
+                                          Text(widget.socketMsg?.distance as String,
+                                              style: const TextStyle(
                                                 fontSize: 20,
                                               )),
                                         ],

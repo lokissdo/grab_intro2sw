@@ -204,8 +204,6 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                         },
                       ),
                     ),
-
-                    // Visibility widget containing the container
                     Visibility(
                       visible:
                           isContainerVisible, // Control visibility based on the state variable
@@ -221,68 +219,74 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(
-                                  10), // This adds 10 pixels of padding on all sides
+                              padding: const EdgeInsets.all(10),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: Container(),
+                                  // Customer name and number aligned to the left
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.socketMsg?.distance
+                                            as String, // Replace with your dynamic customer name
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        widget.socketMsg?.customerPhoneNumber
+                                            as String, // Replace with your dynamic customer number
+                                        style: const TextStyle(
+                                            fontSize: 16, color: Colors.grey),
+                                      ),
+                                    ],
                                   ),
 
                                   // Icons aligned to the right
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize
-                                          .min, // To keep the icons together
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape
-                                                .circle, // Circular shape
-                                            border: Border.all(
-                                              color: Colors
-                                                  .grey, // Black border color
-                                              width: 2, // Border width
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.message,
-                                              color: Colors.yellow,
-                                            ),
-                                            onPressed: () {
-                                              // Define the action when the button is pressed
-                                            },
+                                  Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 2,
                                           ),
                                         ),
-                                        const SizedBox(
-                                            width:
-                                                8), // Space between the icons
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape
-                                                .circle, // Circular shape
-                                            border: Border.all(
-                                              color: Colors
-                                                  .grey, // Black border color
-                                              width: 2, // Border width
-                                            ),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.message,
+                                            color: Colors.yellow,
                                           ),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.local_phone,
-                                              color: Colors.yellow,
-                                            ),
-                                            onPressed: () {
-                                              // Define the action when the button is pressed
-                                            },
+                                          onPressed: () {
+                                            // Define the action when the button is pressed
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 2,
                                           ),
-                                        )
-                                      ],
-                                    ),
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.local_phone,
+                                            color: Colors.yellow,
+                                          ),
+                                          onPressed: () {
+                                            // Define the action when the button is pressed
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -294,9 +298,10 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                 children: [
                                   const Column(
                                     children: [
+                                      SizedBox(height: 25),
                                       Image(
                                         image: AssetImage(
-                                            'assets/icons/location1.png'),
+                                            'assets/icons/location2.png'),
                                         width: 25,
                                         height: 25,
                                       ),
@@ -314,23 +319,16 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  "Vị trí đón khách",
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
+                                            const SizedBox(height: 20),
+                                            const Text(
+                                              "Vị trí đón khách",
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                             Text(widget
-                                                    .socketMsg?.pickupAddress ??
-                                                ""),
+                                                    .socketMsg!.pickupAddress ??
+                                                ''),
                                           ],
                                         ),
                                       ],
@@ -367,6 +365,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                         ),
                       ),
                     ),
+                    // Visibility widget containing the container
                   ],
                 ),
                 Positioned(

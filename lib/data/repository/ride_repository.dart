@@ -28,7 +28,7 @@ class RideRepository {
     final docRef = _firestore.collection(RideModel.collectionName).doc();
     ride.id = docRef.id;
     await docRef.set(ride.toJson());
-    return ride.id;
+    return ride.id as String;
   }
 
   /// Update a ride

@@ -8,6 +8,7 @@ import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/presentations/widget/vehicle_card.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/icons.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
   double discountPercent = 0.0;
   List<PaymentMethodModel> paymentMethods = [];
   Map<String, dynamic> distance = {};
-
+  String selectedCard = "Grab Bike";
+  int fullCost = 50000;
   @override
   void initState() {
     super.initState();
@@ -40,6 +42,48 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     // Update the state with the fetched payment methods
     setState(() {
       paymentMethods = methods;
+    });
+  }
+
+  Future<void> _showCardSelectionDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose a card'),
+          content: Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  _updateSelectedCard("Grab Bike");
+                  Navigator.of(context).pop();
+                },
+                child: VehicleCard(
+                  title: "Grab Bike",
+                  imagePath: 'assets/icons/grab_bike.png',
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  _updateSelectedCard("Uber");
+                  Navigator.of(context).pop();
+                },
+                child: VehicleCard(
+                  title: "Uber",
+                  imagePath: 'assets/icons/grab_bike.png',
+                ),
+              ),
+              // Add more cards as needed
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateSelectedCard(String newCard) {
+    setState(() {
+      selectedCard = newCard;
     });
   }
 
@@ -143,14 +187,17 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(appState.pickupAddress.stringName),
+                                      Text(
+                                        appState.pickupAddress.stringName,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
@@ -160,41 +207,12 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          FutureBuilder(
-                                            future: MapController().getDistance(
-                                              appState.pickupAddress.placeId,
-                                              appState
-                                                  .destinationAddress.placeId,
-                                            ),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Text(
-                                                    "Calculating distance...",
-                                                    style: TextStyle(
-                                                        fontSize: 20));
-                                              } else if (snapshot.hasError) {
-                                                return Text(
-                                                    "Error: ${snapshot.error}",
-                                                    style: const TextStyle(
-                                                        fontSize: 20));
-                                              } else {
-                                                String distanceText =
-                                                    "${snapshot.data?['distance']}"; // Use the correct key for distance
-                                                appState
-                                                    .setDistance(distanceText);
-                                                return Text(
-                                                  distanceText,
-                                                  style: const TextStyle(
-                                                      fontSize: 20),
-                                                );
-                                              }
-                                            },
-                                          ),
                                         ],
                                       ),
-                                      Text(appState
-                                          .destinationAddress.stringName),
+                                      Text(
+                                        appState.destinationAddress.stringName,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -204,40 +222,72 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 30,
+                        width: 15,
                       ),
-                      Card(
-                          elevation: 0,
-                          color: const Color.fromARGB(255, 252, 251, 236),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Set the border radius
-                            side: const BorderSide(
-                                width: 2.0,
-                                color: Color.fromARGB(
-                                    255, 255, 255, 47)), // Set the border color
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                right: 30, left: 30, top: 10, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Grab Bike",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Image(
-                                  image:
-                                      AssetImage('assets/icons/grab_bike.png'),
-                                  width: 70,
-                                  height: 70,
-                                )
-                              ],
+                      Padding(
+                        padding: EdgeInsets.only(
+                            right: 30, left: 0, top: 20, bottom: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Khoảng cách:",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          )),
+                            FutureBuilder(
+                              future: MapController().getDistance(
+                                appState.pickupAddress.placeId,
+                                appState.destinationAddress.placeId,
+                              ),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Text(
+                                    "Đang tính ...",
+                                    style: TextStyle(fontSize: 20),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text(
+                                    "Error: ${snapshot.error}",
+                                    style: TextStyle(fontSize: 20),
+                                  );
+                                } else {
+                                  String distanceText =
+                                      "${snapshot.data?['distance']}"; // Use the correct key for distance
+                                  appState.setDistance(distanceText);
+                                  return Text(
+                                    distanceText,
+                                    style: TextStyle(fontSize: 20),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: 270, // Adjust the width as needed
+                            child: VehicleCard(
+                              title: selectedCard,
+                              imagePath: 'assets/icons/grab_bike.png',
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => _showCardSelectionDialog(context),
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              size: 24,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -276,28 +326,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                       Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Tổng",
-                                  style: TextStyle(fontSize: 25),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Giá cước"),
-                                Text(
-                                    "\$200"), // Assume this is your original price
-                              ],
+                            SizedBox(
+                              height: 0,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -305,13 +335,29 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 const Text("Khuyến mãi"),
                                 // Display discount amount based on discountPercent
                                 Text(discountPercent > 0
-                                    ? "-\$${(200 * discountPercent / 100).toStringAsFixed(2)}"
-                                    : "\$0"),
+                                    ? "${(fullCost * discountPercent / 100).toStringAsFixed(2)} \đ"
+                                    : "\0đ"),
                               ],
-                            )
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Tổng",
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                                Text(
+                                  "${(fullCost * (100 - discountPercent) / 100).toStringAsFixed(2)} \đ",
+                                  style: TextStyle(fontSize: 25),
+                                )
+                              ],
+                            ),
                           ]),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -343,15 +389,19 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {
+                            onPressed: selectedPaymentMethodIndex == -1
+                                ? null // Disable the button if no payment method is selected
+                                : () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const FindDriverScreen()),
-                                    )
+                                        builder: (context) =>
+                                            FindDriverScreen(),
+                                      ),
+                                    );
                                   },
-                              text: "Xác nhận chuyến đi")
+                            text: "Xác nhận chuyến đi",
+                          ),
                         ],
                       ))
                     ],

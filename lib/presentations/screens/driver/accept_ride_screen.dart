@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_pickup_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
+import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/presentations/widget/navbar_accept_ride.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/styles.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class AcceptRideScreen extends StatefulWidget {
@@ -31,9 +36,11 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   }
 
   void acceptRide() async {
-    String id =
-        await rideController.createRide(widget.socketMsg as SocketMsgModel);
-    widget.socketMsg?.rideId = id;
+    widget.socketMsg?.driverName = AuthController.instance.driver?.name;
+    widget.socketMsg?.driverPhoneNumber =
+        AuthController.instance.driver?.phoneNumber;
+    widget.socketMsg?.driverLicense =
+        AuthController.instance.driver?.licenseNumber;
     widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
 
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -77,6 +84,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -89,20 +97,15 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      NavBarAcceptRide(title: "Khách hàng đang tìm bạn"),
+                      const NavBar(
+                        title: "Có chuyến xe mới",
+                        backText: "",
+                      ),
                       const SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            fakerCustomerData?.name ?? "",
-                            style: MyStyles.boldTextStyle,
-                          ),
-                          Text(
-                            fakerCustomerData?.phoneNumber ?? "",
-                            style: MyStyles.boldTextStyle,
-                          )
-                        ],
+                      const Text(
+                        "Thông tin chuyến đi",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 30),
                       SizedBox(
@@ -147,8 +150,10 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(widget.socketMsg?.pickupAddress ??
-                                          ""),
+                                      Text(
+                                        widget.socketMsg?.pickupAddress ?? "",
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                   Column(
@@ -165,15 +170,13 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text("5km",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              )),
                                         ],
                                       ),
-                                      Text(widget
-                                              .socketMsg?.destinationAddress ??
-                                          ""),
+                                      Text(
+                                        widget.socketMsg?.destinationAddress ??
+                                            "",
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -183,7 +186,10 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 30,
+                        width: 15,
+                      ),
+                      const SizedBox(
+                        height: 200,
                       ),
                       Card(
                           elevation: 0,
@@ -196,39 +202,107 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                 color: Color.fromARGB(
                                     255, 255, 255, 47)), // Set the border color
                           ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                right: 30, left: 30, top: 10, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
                               children: [
-                                Text(
-                                  "Grab Bike",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
+                                const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Hình thức thanh toán",
+                                      style: MyStyles.boldTextStyle,
+                                    ),
+                                    Text(
+                                      "Tiền mặt",
+                                      style: MyStyles.boldTextStyle,
+                                    )
+                                  ],
                                 ),
-                                Image(
-                                  image:
-                                      AssetImage('assets/icons/grab_bike.png'),
-                                  width: 70,
-                                  height: 70,
-                                )
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Giá tiền",
+                                      style: MyStyles.boldTextStyle,
+                                    ),
+                                    Text(
+                                      "100.000đ",
+                                      style: MyStyles.boldTextStyle,
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Khoảng cách",
+                                      style: MyStyles.boldTextStyle,
+                                    ),
+                                    Text(
+                                      widget.socketMsg?.distance as String,
+                                      style: MyStyles.boldTextStyle,
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Thời gian",
+                                      style: MyStyles.boldTextStyle,
+                                    ),
+                                    Text(
+                                      "20 phút",
+                                      style: MyStyles.boldTextStyle,
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                           )),
                       Expanded(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ConfirmButton(
-                              onPressed: () => {acceptRide()},
-                              text: "Đồng ý nhận chuyến đi"),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      ))
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: ConfirmButton(
+                                    onPressed: () => {acceptRide()},
+                                    text: "Từ chối",
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: ConfirmButton(
+                                    onPressed: () => {acceptRide()},
+                                    text: "Đồng ý",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

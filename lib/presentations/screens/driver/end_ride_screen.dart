@@ -3,6 +3,7 @@ import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/finish_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
+import 'package:grab/state.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -10,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grab/presentations/widget/profile_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 final GlobalKey<ScaffoldState> jcbHomekey = GlobalKey();
@@ -49,6 +51,7 @@ class _EndRideScreen extends State<EndRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
     return Scaffold(
       key: jcbHomekey,
       drawer: ProfileHomeScreen(),
@@ -240,20 +243,20 @@ class _EndRideScreen extends State<EndRideScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const Row(
+                                            Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text(
+                                                const Text(
                                                   "Vị trí kết thúc",
                                                   style: TextStyle(
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.bold),
                                                 ),
-                                                Text("5km",
-                                                    style: TextStyle(
+                                                Text(widget.socketMsg?.distance as String,
+                                                    style: const TextStyle(
                                                       fontSize: 20,
                                                     )),
                                               ],
