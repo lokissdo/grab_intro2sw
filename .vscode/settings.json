@@ -1,3 +1,6 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cmake.sourceDirectory": "D:/HocDaiHoc/Intro2SE/grab_intro2s3/grab_intro2sw/windows/flutter",
+    "dart.flutterSdkPath": "D:\\flutter",
 }
+
