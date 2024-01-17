@@ -72,7 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.13.100:3000',
+      'http://192.168.1.8:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -249,10 +249,11 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
-                                        const Image(
-                                          image: AssetImage('assets/icons/grab_bike.png'),
+                                        Image(
+                                          image: AssetImage(
+                                              'assets/icons/grab_bike.png'),
                                           width: 30,
                                           height: 30,
                                         ),
@@ -262,7 +263,8 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                         Expanded(
                                             child: Text(
                                           "Đang tìm chuyến đi...",
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
                                         )),
                                       ],
                                     ),

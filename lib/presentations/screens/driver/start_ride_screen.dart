@@ -182,11 +182,12 @@ class _StartRideScreen extends State<StartRideScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     // Customer name aligned to the left
-                                    const Align(
+                                    Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        "Customer Name", // Replace with your dynamic customer name
-                                        style: TextStyle(
+                                        widget.socketMsg?.distance
+                                            as String, // Replace with your dynamic customer name
+                                        style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -298,9 +299,12 @@ class _StartRideScreen extends State<StartRideScreen> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(widget.socketMsg!
-                                                      .pickupAddress ??
-                                                  '',overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                widget.socketMsg!
+                                                        .pickupAddress ??
+                                                    '',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                           Column(
@@ -319,13 +323,14 @@ class _StartRideScreen extends State<StartRideScreen> {
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  
                                                 ],
                                               ),
-                                              Text(widget.socketMsg!
-                                                      .destinationAddress ??
-                                                  '',
-                                                  overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                widget.socketMsg!
+                                                        .destinationAddress ??
+                                                    '',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                         ],

@@ -29,20 +29,21 @@ class DriverModel {
 
   static DriverModel fromJson(Map<String, dynamic> map) {
     return DriverModel(
-      id: map["id"],
-      name: map["name"],
-      email: map["email"],
-      phoneNumber: map["phoneNumber"],
-      licenseNumber: map["licenseNumber"],
-      createdAt: map["createdAt"] as Timestamp?,
-      updatedAt: map["updatedAt"] as Timestamp?,
-      isDeleted: map["isDeleted"] as bool,
-      address: map["address"] != null
-          ? AddressModel.fromJson(map["address"])
-          : null, // Use Address.fromJson()
-          rating: map['rating'],
-          status: map['status']
-    );
+        id: map["id"] ?? "",
+        name: map["name"] ?? "",
+        email: map["email"] ?? "",
+        phoneNumber: map["phoneNumber"] ?? "",
+        licenseNumber: map["licenseNumber"] ?? "",
+        createdAt:
+            map["createdAt"] == null ? null : map["createdAt"] as Timestamp?,
+        updatedAt:
+            map["updatedAt"] == null ? null : map["updatedAt"] as Timestamp?,
+        isDeleted: map["isDeleted"] ?? false,
+        address: map["address"] != null
+            ? AddressModel.fromJson(map["address"])
+            : null, // Use Address.fromJson()
+        rating: map['rating'] ?? 0.0,
+        status: map['status'] ?? false);
   }
 
   Map<String, dynamic> toJson() {
@@ -57,7 +58,7 @@ class DriverModel {
       "isDeleted": isDeleted,
       "rating": rating,
       "status": status,
-      "licenseNumber":licenseNumber
+      "licenseNumber": licenseNumber
     };
   }
 }
