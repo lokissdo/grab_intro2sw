@@ -33,25 +33,21 @@ class AuthController extends GetxController {
       await loadUserData();
       Get.offNamed('/check-auth');
     });
-    // ever(_user, loginRedirect);
+    ever(_user, loginRedirect);
   }
 
-  void onUserDataLoaded() {
-    update(); // Notify listeners about user data loaded
-  }
-
-  // loginRedirect(User? user) {
-  //   Timer(Duration(seconds: isLoging ? 0 : 2), () {
-  //     if (user == null) {
-  //       isLoging = false;
-  //       update();
-  //       //Get.offAll(() => const LoginScreen());
-  //     } else {
-  //       isLoging = true;
-  //       update();
-  //       //Get.offAll(() => const HomeScreen());
-  //     }
-  //   });
+  loginRedirect(User? user) {
+    Timer(Duration(seconds: isLoging ? 0 : 2), () {
+      if (user == null) {
+        isLoging = false;
+        update();
+        //Get.offAll(() => const LoginScreen());
+      } else {
+        isLoging = true;
+        update();
+        //Get.offAll(() => const HomeScreen());
+      }
+    });
   }
 
   void registerUser(email, password, name, phoneNumber) async {
