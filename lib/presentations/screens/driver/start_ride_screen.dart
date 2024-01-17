@@ -300,7 +300,7 @@ class _StartRideScreen extends State<StartRideScreen> {
                                               ),
                                               Text(widget.socketMsg!
                                                       .pickupAddress ??
-                                                  ''),
+                                                  '',overflow: TextOverflow.ellipsis,),
                                             ],
                                           ),
                                           Column(
@@ -319,15 +319,13 @@ class _StartRideScreen extends State<StartRideScreen> {
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  Text("5km",
-                                                      style: TextStyle(
-                                                        fontSize: 20,
-                                                      )),
+                                                  
                                                 ],
                                               ),
                                               Text(widget.socketMsg!
                                                       .destinationAddress ??
-                                                  ''),
+                                                  '',
+                                                  overflow: TextOverflow.ellipsis,),
                                             ],
                                           ),
                                         ],
