@@ -28,7 +28,7 @@ class RideRepository {
     final docRef = _firestore.collection(RideModel.collectionName).doc();
     ride.id = docRef.id;
     await docRef.set(ride.toJson());
-    return ride.id;
+    return ride.id as String;
   }
 
   /// Update a ride
@@ -37,6 +37,12 @@ class RideRepository {
     await docRef.update(ride.toJson());
   }
 
+  Future<void> updateStatusById(String id, RideStatus status) {
+    return _firestore
+        .collection(RideModel.collectionName)
+        .doc(id)
+        .update({'status': status.name});
+  }
 
   /// Additional functions related to ride status, filtering, etc. can be added here
 

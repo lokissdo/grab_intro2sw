@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/controller/map_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
+import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
@@ -35,7 +37,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
   late Timer timer;
   Position? currentPosition;
   Set<Marker> markers = {};
-
+  RideController rideController = RideController();
   void _addEventSocket() {
     widget.socket?.on('accept_ride', (msg) {
       widget.socketMsg = SocketMsgModel.fromJson(msg);
@@ -341,6 +343,9 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                 ),
                                 child: ConfirmButton(
                                   onPressed: () => {
+                                        rideController.updateStatusById(
+                                            widget.socketMsg?.rideId as String,
+                                            RideStatus.moving),
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(

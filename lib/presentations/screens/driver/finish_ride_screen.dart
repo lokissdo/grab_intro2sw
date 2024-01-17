@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/payment_method_model.dart';
+import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
@@ -29,6 +31,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
   final String CASH_PAYMENT_NAME = 'cash';
   PaymentMethodModel? fakerPaymentData;
   CustomerModel? fakerCustomerData;
+  RideController rideController = RideController();
   @override
   void initState() {
     super.initState();
@@ -285,7 +288,11 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {},
+                              onPressed: () => {
+                                    rideController.updateStatusById(
+                                        widget.socketMsg?.rideId as String,
+                                        RideStatus.completed),
+                                  },
                               text: "Xác nhận hoàn tất chuyến đi"),
                           const SizedBox(
                             height: 10,
