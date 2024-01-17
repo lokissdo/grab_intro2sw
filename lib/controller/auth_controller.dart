@@ -19,18 +19,26 @@ class AuthController extends GetxController {
   late Rx<User?> _user;
   bool isLoging = false;
   User? get user => _user.value;
+  Rx<User?> get _user_rx => _user;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final CustomerRepository cusRepo = getIt.get<CustomerRepository>();
   final DriverRepository driverRepo = getIt.get<DriverRepository>();
   CustomerModel? customer;
   DriverModel? driver;
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
     _user = Rx<User?>(auth.currentUser);
     _user.bindStream(auth.authStateChanges());
-    ever(_user, (_) => loadUserData());
+    ever(_user, (_) async {
+      await loadUserData();
+      Get.offNamed('/check-auth');
+    });
     ever(_user, loginRedirect);
+  }
+
+  void onUserDataLoaded() {
+    update(); // Notify listeners about user data loaded
   }
 
   loginRedirect(User? user) {
@@ -119,6 +127,8 @@ class AuthController extends GetxController {
       try {
         customer = await cusRepo.readCustomer(_user.value!.uid);
         driver = await driverRepo.readDriver(_user.value!.uid);
+        print(driver);
+        print(customer);
       } catch (e) {
         // Handle errors or set default values
         debugPrint("Error loading customer data: $e");

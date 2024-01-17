@@ -72,7 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.0.3:3000',
+      'http://192.168.13.100:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -211,13 +211,29 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                       right: 20,
                       left: 20,
                       child: Column(children: [
-                        Center(
+
+                        Container(
+                                alignment: Alignment.bottomCenter,
+                                width: MediaQuery.of(context).size.width,
+                                 padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                child:  Center(
                             child: Text(
                           isSwitchedOn
                               ? 'Chế độ nhận chuyến đã được bật'
                               : 'Chế độ nhận chuyến đã tắt',
                           style: MyStyles.boldTextStyle,
                         )),
+                        ),
+
+
+
+                       
                         const SizedBox(height: 30),
                         isSwitchedOn
                             ? Container(
