@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:grab/data/model/address_model.dart';
 import 'package:grab/data/model/feedback_model.dart';
 
@@ -9,8 +10,8 @@ class RideModel {
   RideModel({
     this.id,
     required this.customerId,
-    required this.driverId,
-    required this.service,
+    this.driverId,
+    required this.serviceId,
     required this.startLocation,
     required this.endLocation,
     required this.startTime,
@@ -32,12 +33,13 @@ class RideModel {
   FeedbackModel? feedback;
 
   static RideModel fromJson(Map<String, dynamic> map) {
+
     return RideModel(
       id: map["id"],
       driverId: map["driverId"],
       customerId: map["customerId"],
-      service: map["service"],
-      fare: map["fare"] as double,
+      serviceId: map["serviceId"] == null ? map["service"]: map["serviceId"],
+      fare: (map["fare"] as num).toDouble() ,
       startLocation: AddressModel.fromJson(map["startLocation"]),
       endLocation: AddressModel.fromJson(map["endLocation"]),
       startTime: map["startTime"] as Timestamp,
@@ -54,7 +56,7 @@ class RideModel {
       "id": id,
       "driverId": driverId,
       "customerId": customerId,
-      "service": service,
+      "serviceId": serviceId,
       "fare": fare,
       "startLocation": startLocation.toJson(),
       "endLocation": endLocation.toJson(),
