@@ -21,90 +21,137 @@ class RideCard extends StatelessWidget {
     if (rideModel.status == RideStatus.waiting) {
       message = "Tài xế đang đến đón bạn";
     } else if (rideModel.status == RideStatus.moving) {
-      message = "Tài xế đã đón bạn";  
+      message = "Tài xế đã đón bạn";
     }
     return message;
   }
 
   @override
   Widget build(BuildContext context) {
-  final ThemeData _theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
 
-  String formattedTime = formatTime(rideModel.startTime);
-  String message = returnMessgae(rideModel);
+    String formattedTime = formatTime(rideModel.startTime);
+    String message = returnMessgae(rideModel);
 
-  return Container(
-    margin: EdgeInsets.only(top: 10.0),
-    child: Card(
-      elevation: 0.0,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
-            width: 2.0,
+    return Container(
+      margin: const EdgeInsets.only(top: 10.0),
+      child: Card(
+        elevation: 0.0,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 2.0,
+            ),
           ),
-        ),
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  "${formattedTime}  ${message}",
-                  style: TextStyle(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    "$formattedTime  $message",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                  // Add a condition to check if the ride is canceled and display the button
+                  if (rideModel.status == RideStatus.cancel)
+                    TextButton(
+                      onPressed: () {
+                        // Show dialog box with cancel reason
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Lí do hủy chuyến"),
+                              content: const Text("Anh ay toi tre"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Text("Lí do hủy chuyến"),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              ListTile(
+                contentPadding: const EdgeInsets.only(left: 0.0),
+                title: Text(
+                  rideModel.serviceId == 'FSpgPjk3VNGDE0HxdxTe'
+                      ? 'GrabBike'
+                      : 'GrabCar',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17.0,
                   ),
                 ),
-                // Add a condition to check if the ride is canceled and display the button
-                if (rideModel.status == RideStatus.cancel)
-                  TextButton(
-                    onPressed: () {
-                      // Show dialog box with cancel reason
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Lí do hủy chuyến"),
-                            content: Text("Anh ay toi tre"),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text("OK"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Text("Lí do hủy chuyến"),
-                  ),
-              ],
-            ),
-            SizedBox(height: 10.0),
-            ListTile(
-              contentPadding: EdgeInsets.only(left: 0.0),
-              title: Text(
-                
-                rideModel.serviceId == 1 ? 'GrabBike' : 'GrabCar',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                subtitle: const Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Expanded(
+                      child: Text(
+                        "",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    const Text(
+                      "Price",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 5.0,
+                    ),
+                    Text(
+                      Formatter.VNDFormatter(rideModel.fare.round()),
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              subtitle: Row(
+              // Add a new Row widget here
+              Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(
+                  Icon(
+                    Icons.pin_drop,
+                    color: theme.primaryColor,
+                  ),
+                  const SizedBox(
                     width: 5.0,
                   ),
                   Expanded(
                     child: Text(
-                      "",
-                      style: TextStyle(
+                      rideModel.startLocation.stringName,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -112,80 +159,29 @@ class RideCard extends StatelessWidget {
                   ),
                 ],
               ),
-              trailing: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    "Price",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Icon(Icons.pin_drop,
+                      color: Color.fromRGBO(255, 127, 0, 1.0)),
+                  const SizedBox(
+                    width: 5.0,
                   ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Text(
-                    "${rideModel.fare.toStringAsFixed(3)}",
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      color: _theme.primaryColor,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      rideModel.endLocation.stringName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-            ),
-            // Add a new Row widget here
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Icon(
-                    Icons.pin_drop,
-                    color: _theme.primaryColor,
-                  ),
-                  SizedBox(
-                    width: 5.0,
-                  ),
-                  Expanded(
-                    child: Text(
-                  "${rideModel.startLocation.stringName}",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                  ),
-                ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Icon(
-                    Icons.pin_drop,
-                    color: Color.fromRGBO(255, 127, 0, 1.0)
-                  ),
-                  SizedBox(
-                    width: 5.0,
-                  ),
-                  Expanded(
-                    child: Text(
-                  "${rideModel.endLocation.stringName}",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                  ),
-                ],
-            ),
-            
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 }

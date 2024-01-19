@@ -212,14 +212,13 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     } else {
       appState.setPrice(
           FareCaculator.calc(distance, time, services[selectedCard]).round());
-      appState.setService(services[selectedCard].name);
+      appState.setService(services[selectedCard].id);
     }
 
     if (selectedPaymentMethodIndex > -1) {
       appState
           .setPaymentMethod(paymentMethods[selectedPaymentMethodIndex].name);
     }
-
 
     return Scaffold(
       body: SafeArea(
@@ -410,7 +409,6 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 } else {
                                   discountPercent = 0.0;
                                 }
-
                               });
                             },
                             icon: const Icon(
@@ -457,7 +455,6 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-
                                   services.isNotEmpty
                                       ? Formatter.VNDFormatter(
                                           ((FareCaculator.calc(
@@ -473,7 +470,6 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                   style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold),
-
                                 )
                               ],
                             ),
@@ -507,7 +503,6 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ],
                       ),
                       Expanded(
-
                           child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
