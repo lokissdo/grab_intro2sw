@@ -73,7 +73,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
   void _initializeSocket() {
     socket = IO.io(
 
-      'http://192.168.1.2:3000',
+      'http://192.168.1.16:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

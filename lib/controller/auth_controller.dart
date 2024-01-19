@@ -144,6 +144,19 @@ class AuthController extends GetxController {
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication? googleAuth =
             await googleSignInAccount.authentication;
+
+        // Check if the email associated with the Google account is already registered
+        List<String> signInMethods =
+            await auth.fetchSignInMethodsForEmail(googleSignInAccount.email);
+
+        
+        if (signInMethods.contains("password")) {
+          // Email is already registered
+          getErrorSnackBarNew(
+              "Email already exists. Please use a different email.");
+          return;
+        }
+
         final crendentials = GoogleAuthProvider.credential(
           accessToken: googleAuth?.accessToken,
           idToken: googleAuth?.idToken,
