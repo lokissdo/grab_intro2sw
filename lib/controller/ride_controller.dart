@@ -26,7 +26,7 @@ class RideController {
           DateTime.now().millisecondsSinceEpoch),
       endTime: Timestamp.fromMillisecondsSinceEpoch(
           DateTime.now().millisecondsSinceEpoch),
-      fare: 0,
+      fare: msg.price!.toDouble(),
       status: rideStatus,
       feedback: null,
     );
