@@ -205,6 +205,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     // setState(() {
     //   appState = Provider.of<AppState>(context);
     // });
+
     appState = Provider.of<AppState>(context);
     if (services.length == 0) {
       appState.setPrice(0);
@@ -218,6 +219,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       appState
           .setPaymentMethod(paymentMethods[selectedPaymentMethodIndex].name);
     }
+
 
     return Scaffold(
       body: SafeArea(
@@ -345,7 +347,9 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 } else {
                                   String distanceText =
                                       "${snapshot.data?['distance']}"; // Use the correct key for distance
+
                                   appState.setDistance(distanceText);
+
                                   return Text(
                                     distanceText,
                                     style: TextStyle(fontSize: 20),
@@ -406,6 +410,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 } else {
                                   discountPercent = 0.0;
                                 }
+
                               });
                             },
                             icon: const Icon(
@@ -452,6 +457,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
+
                                   services.isNotEmpty
                                       ? Formatter.VNDFormatter(
                                           ((FareCaculator.calc(
@@ -467,6 +473,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                   style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold),
+
                                 )
                               ],
                             ),
@@ -500,6 +507,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ],
                       ),
                       Expanded(
+
                           child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [

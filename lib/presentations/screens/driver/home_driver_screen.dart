@@ -72,6 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
+
       'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
@@ -226,6 +227,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                       right: 20,
                       left: 20,
                       child: Column(children: [
+
                         Container(
                           alignment: Alignment.bottomCenter,
                           width: MediaQuery.of(context).size.width,
@@ -244,6 +246,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                             style: MyStyles.boldTextStyle,
                           )),
                         ),
+
                         const SizedBox(height: 30),
                         isSwitchedOn
                             ? Container(
