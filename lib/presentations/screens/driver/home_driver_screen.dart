@@ -72,8 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-
-      'http://192.168.1.16:3000',
+      'http://192.168.1.13:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -89,8 +88,6 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
         driverId = msg['id'];
       });
     });
-
-    socket?.connect();
 
     socket?.on('request_ride', (msg) {
       setState(() {
@@ -227,7 +224,6 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                       right: 20,
                       left: 20,
                       child: Column(children: [
-
                         Container(
                           alignment: Alignment.bottomCenter,
                           width: MediaQuery.of(context).size.width,
@@ -246,7 +242,6 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                             style: MyStyles.boldTextStyle,
                           )),
                         ),
-
                         const SizedBox(height: 30),
                         isSwitchedOn
                             ? Container(
