@@ -1,5 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:grab/controller/auth_controller.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/repository/ride_repository.dart';
 import 'package:grab/presentations/widget/ride_carts.dart';
@@ -12,7 +15,10 @@ class MyRidesScreen extends StatefulWidget {
 }
 
 class _MyRidesScreenState extends State<MyRidesScreen> {
+  final RideRepository rideRepository = RideRepository();
   List<RideModel> rideList = [];
+   AuthController authController = Get.find();
+   
 
   @override
   void initState() {
@@ -21,15 +27,20 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   }
 
   Future<void> fetchAllRides() async {
-    RideRepository rideRepository = RideRepository();
-    // Fetch all rides available
-    Stream<List<RideModel>> allRidesStream = rideRepository.readRides();
-    // Listen to changes in the stream and update rideList accordingly
-    allRidesStream.listen((List<RideModel> rides) {
-      setState(() {
-        rideList = rides;
+    try {
+      // Call the readRides function from the repository
+      Stream<List<RideModel>> rideStream = rideRepository.readCustomerRides(authController.customer!.id);
+
+      // Listen to the stream and update the rideList when data changes
+      rideStream.listen((List<RideModel> rides) {
+        setState(() {
+          rideList = rides;
+        });
       });
-    });
+    } catch (error) {
+      // Handle errors, if any
+      debugPrint('Error fetching rides: $error');
+    }
   }
 
   @override
@@ -65,7 +76,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
           children: <Widget>[
             Text(
               "Chuyến xe của tôi",
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              
               // style: _theme.textTheme.title,
             ),
             SizedBox(
@@ -87,13 +99,13 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                       indicatorColor: theme.primaryColor,
                       tabs: <Widget>[
                         Tab(
-                          text: "UPCOMING",
+                          text: "ĐANG ĐẾN",
                         ),
                         Tab(
-                          text: "COMPLETED",
+                          text: "ĐÃ ĐẾN",
                         ),
                         Tab(
-                          text: "CANCELED",
+                          text: "ĐÃ HỦY",
                         ),
                       ],
                     ),

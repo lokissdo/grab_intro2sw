@@ -13,7 +13,7 @@ class RideController {
     RideModel ride = RideModel(
       customerId: msg.customerId as String,
       driverId: msg.driverId,
-      service: msg.service as String,
+      serviceId: msg.service as String,
       startLocation: AddressModel(
           coordinates:
               GeoPoint(msg.pickupPoint!.latitude, msg.pickupPoint!.longitude),
