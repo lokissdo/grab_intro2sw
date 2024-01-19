@@ -11,6 +11,7 @@ import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/presentations/widget/navbar_accept_ride.dart';
 import 'package:grab/state.dart';
 import 'package:grab/utils/constants/styles.dart';
+import 'package:grab/utils/helpers/formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -206,16 +207,16 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                             padding: const EdgeInsets.all(10),
                             child: Column(
                               children: [
-                                const Row(
+                                Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Hình thức thanh toán",
                                       style: MyStyles.boldTextStyle,
                                     ),
                                     Text(
-                                      "Tiền mặt",
+                                      widget.socketMsg?.paymentMethod ?? "",
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],
@@ -223,16 +224,17 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const Row(
+                                Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Giá tiền",
                                       style: MyStyles.boldTextStyle,
                                     ),
                                     Text(
-                                      "100.000đ",
+                                      Formatter.VNDFormatter(
+                                          widget.socketMsg?.price as int),
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],
@@ -250,23 +252,6 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                     ),
                                     Text(
                                       widget.socketMsg?.distance as String,
-                                      style: MyStyles.boldTextStyle,
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                const Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Thời gian",
-                                      style: MyStyles.boldTextStyle,
-                                    ),
-                                    Text(
-                                      "20 phút",
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],

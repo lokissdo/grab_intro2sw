@@ -58,15 +58,6 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
             height: 20,
           ),
         ),
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.map_outlined,
-                color: Colors.black,
-                size: 26,
-              ))
-        ],
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -89,7 +80,7 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
                       },
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
-                          hintText: 'Enter pickup location',
+                          hintText: 'Nhập địa điểm bắt đầu',
                           prefixIcon: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             child: SvgPicture.asset(
@@ -129,7 +120,7 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
                       },
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
-                        hintText: 'Enter destination',
+                        hintText: 'Nhập địa điểm đến',
                         prefixIcon: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           child: SvgPicture.asset(
@@ -154,9 +145,9 @@ class _SearchDestinationceScreenState extends State<SearchDestinationceScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => BookingRideScreen()));
+                        builder: (context) => const BookingRideScreen()));
               },
-              child: Text('Confirm'),
+              child: const Text('Xác nhận'),
             ),
           ],
         ),

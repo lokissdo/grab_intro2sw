@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/data/model/ride_model.dart';
-
+import 'package:grab/utils/helpers/formatter.dart';
 
 class RideCard extends StatelessWidget {
   final RideModel rideModel;
@@ -21,42 +21,45 @@ class RideCard extends StatelessWidget {
     if (rideModel.status == RideStatus.waiting) {
       message = "Driver is on the way";
     } else if (rideModel.status == RideStatus.moving) {
-      message = "Drive picked you up";  
+      message = "Drive picked you up";
     }
     return message;
   }
- @override
+
+  @override
   Widget build(BuildContext context) {
-    final ThemeData _theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
 
     String formattedTime = formatTime(rideModel.startTime);
     String message = returnMessgae(rideModel);
     return Container(
-      margin: EdgeInsets.only(top: 10.0),
+      margin: const EdgeInsets.only(top: 10.0),
       child: Card(
         elevation: 0.0,
         child: Container(
-          padding: EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                "${formattedTime}  ${message}",
-                style: TextStyle(
+                "$formattedTime  $message",
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0,
                 ),
               ),
-              SizedBox(height: 10.0), // Add some space between time and image
-              SizedBox(
+              const SizedBox(
+                  height: 10.0), // Add some space between time and image
+              const SizedBox(
                 height: 170.0,
-                child: Placeholder(), // Replace with your image or UI representation
+                child:
+                    Placeholder(), // Replace with your image or UI representation
               ),
               ListTile(
-                contentPadding: EdgeInsets.only(left: 0.0),
+                contentPadding: const EdgeInsets.only(left: 0.0),
                 title: Text(
-                  rideModel.serviceId,
-                  style: TextStyle(
+                  rideModel.service,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -65,15 +68,15 @@ class RideCard extends StatelessWidget {
                   children: <Widget>[
                     Icon(
                       Icons.pin_drop,
-                      color: _theme.primaryColor,
+                      color: theme.primaryColor,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5.0,
                     ),
                     Expanded(
                       child: Text(
                         "${rideModel.startLocation.stringName} - ${rideModel.endLocation.stringName}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -84,21 +87,21 @@ class RideCard extends StatelessWidget {
                 trailing: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    Text(
-                      "Price",
+                    const Text(
+                      "Giá",
                       style: TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5.0,
                     ),
                     Text(
-                      "\$${rideModel.fare.toStringAsFixed(2)}",
+                      Formatter.VNDFormatter(rideModel.fare.round()),
                       style: TextStyle(
                         fontSize: 24.0,
-                        color: _theme.primaryColor,
+                        color: theme.primaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     )

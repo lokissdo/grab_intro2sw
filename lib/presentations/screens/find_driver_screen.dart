@@ -8,6 +8,7 @@ import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/screens/feedback_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
 import 'package:grab/state.dart';
@@ -37,7 +38,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
   SocketMsgModel? socketMsg = SocketMsgModel();
   RideController rideController = RideController();
-
+  bool startRide = false;
   @override
   void initState() {
     super.initState();
@@ -70,7 +71,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.8:3000',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -89,6 +90,21 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
       setState(() {
         haveDriver = true;
       });
+    });
+
+    socket?.on('start_ride', (msg) {
+      setState(() {
+        startRide = true;
+      });
+    });
+
+    socket?.on('finish_ride', (msg) {
+      socket?.disconnect();
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  FeedBackScreen(msg: socketMsg as SocketMsgModel)));
     });
 
     GoogleMapController? controller;
@@ -178,6 +194,8 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   }
 
   void cancelRide() {
+    progressBarTimer?.cancel();
+    currentProgress = 0;
     rideController.updateStatusById(
         socketMsg?.rideId as String, RideStatus.cancel);
     setState(() {
@@ -186,11 +204,15 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   }
 
   void requestRide(
-      GeoPoint pickup,
-      GeoPoint destination,
-      String? destinationAddress,
-      String? pickupAddress,
-      String? distance) async {
+    GeoPoint pickup,
+    GeoPoint destination,
+    String? destinationAddress,
+    String? pickupAddress,
+    int price,
+    String paymentMethod,
+    String? distance,
+    String? service,
+  ) async {
     confirmRide = true;
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
@@ -198,6 +220,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
     socketMsg?.customerName = AuthController.instance.customer?.name;
     socketMsg?.customerPhoneNumber =
         AuthController.instance.customer?.phoneNumber;
+    socketMsg?.price = price;
     socketMsg?.distance = distance;
     socketMsg?.customerId = user?.uid;
     socketMsg?.customerPosition = LatLng(pickup.latitude, pickup.longitude);
@@ -206,7 +229,8 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
     socketMsg?.pickupPoint = LatLng(pickup.latitude, pickup.longitude);
     socketMsg?.destinationPoint =
         LatLng(destination.latitude, destination.longitude);
-
+    socketMsg?.paymentMethod = paymentMethod;
+    socketMsg?.service = service;
     if (socketMsg?.rideId == null) {
       String id = await rideController.createRide(socketMsg as SocketMsgModel);
       socketMsg?.rideId = id;
@@ -226,8 +250,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: Text("Calculating distance...",
-                  style: TextStyle(fontSize: 20)),
+              child: Text("Loading...", style: TextStyle(fontSize: 20)),
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -255,8 +278,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
               markerId: const MarkerId('currentLocation'),
               position: LatLng(pickup.latitude, pickup.longitude),
               infoWindow: const InfoWindow(title: 'Current Location'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueGreen),
+              icon: BitmapDescriptor.defaultMarkerWithHue(110.0),
             ));
 
             if (driverPosition != null) {
@@ -265,7 +287,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                 position: driverPosition!,
                 infoWindow: const InfoWindow(title: 'Driver'),
                 icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueBlue),
+                    BitmapDescriptor.hueGreen),
               ));
             } else {
               markers.add(Marker(
@@ -405,13 +427,13 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 height:
                                     130, // Set the desired height for the Row
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Column(
+                                    const Column(
                                       children: [
                                         SizedBox(height: 25),
                                         Image(
@@ -422,7 +444,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         mainAxisAlignment:
@@ -434,21 +456,16 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              SizedBox(height: 20),
+                                              const SizedBox(height: 20),
                                               Text(
-                                                "Tài xế đang đến đón bạn",
-                                                style: TextStyle(
+                                                startRide == false
+                                                    ? "Tài xế đang đến đón bạn"
+                                                    : "Đang trong chuyến đi",
+                                                style: const TextStyle(
                                                     fontSize: 20,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(
-                                                'Dự kiến đến lúc 10:00',
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.grey),
-                                              ),
-                                              Text(''),
                                             ],
                                           ),
                                         ],
@@ -457,20 +474,6 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.yellow),
-                                ),
-                                child: ConfirmButton(
-                                    color: Colors.grey,
-                                    onPressed: () => {
-                                          //CANCEL_RIDE_SCREEM
-                                        },
-                                    text: "Hủy chuyến"),
-                              ),
-                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -490,7 +493,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                         topRight: Radius.circular(20),
                       ),
                     ),
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       children: [
                         Row(
@@ -533,31 +536,49 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                     ),
                   )
                 else
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(
+                              16.0), // Adjust the padding as needed
+                          child: ConfirmButton(
+                            onPressed: confirmRide
+                                ? null
+                                : () {
+                                    requestRide(
+                                        pickup,
+                                        destination,
+                                        appState.destinationAddress.stringName,
+                                        appState.pickupAddress.stringName,
+                                        appState.price,
+                                        appState.paymentMethod,
+                                        appState.distance,
+                                        appState.service);
+                                    updateProgressBar();
+                                    setState(() {});
+                                  },
+                            text: "Xác nhận chuyến đi",
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Xác nhận chuyến đi',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      onPressed: () {
-                        requestRide(
-                            pickup,
-                            destination,
-                            appState.destinationAddress.stringName,
-                            appState.pickupAddress.stringName,
-                            appState.distance);
-                        updateProgressBar();
-                        setState(() {});
-                      },
+                      ],
                     ),
                   ),
+                Positioned(
+                  top: 30,
+                  left: 20,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                )
               ],
             );
           }

@@ -10,7 +10,7 @@ class RideModel {
     this.id,
     required this.customerId,
     required this.driverId,
-    required this.serviceId,
+    required this.service,
     required this.startLocation,
     required this.endLocation,
     required this.startTime,
@@ -22,7 +22,7 @@ class RideModel {
   String? id;
   String customerId;
   String? driverId;
-  String serviceId;
+  String service;
   AddressModel startLocation;
   AddressModel endLocation;
   Timestamp startTime;
@@ -36,7 +36,7 @@ class RideModel {
       id: map["id"],
       driverId: map["driverId"],
       customerId: map["customerId"],
-      serviceId: map["serviceId"],
+      service: map["service"],
       fare: map["fare"] as double,
       startLocation: AddressModel.fromJson(map["startLocation"]),
       endLocation: AddressModel.fromJson(map["endLocation"]),
@@ -54,7 +54,7 @@ class RideModel {
       "id": id,
       "driverId": driverId,
       "customerId": customerId,
-      "serviceId": serviceId,
+      "service": service,
       "fare": fare,
       "startLocation": startLocation.toJson(),
       "endLocation": endLocation.toJson(),
