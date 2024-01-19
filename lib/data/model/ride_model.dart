@@ -23,7 +23,7 @@ class RideModel {
   String? id;
   String customerId;
   String? driverId;
-  String service;
+  String serviceId;
   AddressModel startLocation;
   AddressModel endLocation;
   Timestamp startTime;

@@ -76,7 +76,7 @@ class ProfileHomeScreen extends StatelessWidget {
                 )),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('My rides', style: boldTextStyle()),
+              title: Text('Chuyến đi của tôi', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.access_time,
@@ -92,7 +92,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('Promotion', style: boldTextStyle()),
+              title: Text('Khuyến mãi', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.discount_outlined,
@@ -108,7 +108,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('My Favorite', style: boldTextStyle()),
+              title: Text('Yêu thích', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.favorite_border,
@@ -121,7 +121,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('My  payment', style: boldTextStyle()),
+              title: Text('Thanh toán', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.payment,
@@ -134,7 +134,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('Notification', style: boldTextStyle()),
+              title: Text('Thông báo', style: boldTextStyle()),
               leading: IconButton(
                 icon: const Icon(
                   Icons.notifications_none,
@@ -147,7 +147,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('Support', style: boldTextStyle()),
+              title: Text('Hỗ trợ', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.contact_support_outlined,
@@ -160,7 +160,7 @@ class ProfileHomeScreen extends StatelessWidget {
             ),
             ListTile(
               minLeadingWidth: 0,
-              title: Text('Sign out', style: boldTextStyle()),
+              title: Text('Đăng xuất', style: boldTextStyle()),
               leading: IconButton(
                 icon: Icon(
                   Icons.logout,

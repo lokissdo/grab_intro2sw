@@ -76,7 +76,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
           children: <Widget>[
             Text(
               "Chuyến xe của tôi",
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              
               // style: _theme.textTheme.title,
             ),
             SizedBox(

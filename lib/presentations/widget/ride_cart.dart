@@ -48,17 +48,48 @@ class RideCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              "${formattedTime}  ${message}",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 17.0,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  "${formattedTime}  ${message}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17.0,
+                  ),
+                ),
+                // Add a condition to check if the ride is canceled and display the button
+                if (rideModel.status == RideStatus.cancel)
+                  TextButton(
+                    onPressed: () {
+                      // Show dialog box with cancel reason
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Lí do hủy chuyến"),
+                            content: Text("Anh ay toi tre"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("OK"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text("Lí do hủy chuyến"),
+                  ),
+              ],
             ),
             SizedBox(height: 10.0),
             ListTile(
               contentPadding: EdgeInsets.only(left: 0.0),
               title: Text(
+                
                 rideModel.serviceId == 1 ? 'GrabBike' : 'GrabCar',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
