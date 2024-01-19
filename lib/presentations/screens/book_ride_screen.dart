@@ -112,7 +112,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Choose a card'),
+          title: Text('Chọn xe'),
           content: Column(
             children: [
               for (int i = 0; i < services.length; i++)
@@ -205,6 +205,19 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     // setState(() {
     //   appState = Provider.of<AppState>(context);
     // });
+    appState = Provider.of<AppState>(context);
+    if (services.length == 0) {
+      appState.setPrice(0);
+    } else {
+      appState.setPrice(
+          FareCaculator.calc(distance, time, services[selectedCard]).round());
+      appState.setService(services[selectedCard].name);
+    }
+
+    if (selectedPaymentMethodIndex > -1) {
+      appState
+          .setPaymentMethod(paymentMethods[selectedPaymentMethodIndex].name);
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -276,7 +289,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Vị trí kết thúc",
                                             style: TextStyle(
                                                 fontSize: 20,
@@ -347,7 +360,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            width: 270, // Adjust the width as needed
+                            width: 250, // Adjust the width as needed
                             child: VehicleCard(
                               title: (services.isNotEmpty)
                                   ? services[selectedCard].description
@@ -434,7 +447,9 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               children: [
                                 Text(
                                   "Tổng",
-                                  style: TextStyle(fontSize: 25),
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   services.isNotEmpty
@@ -449,7 +464,9 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                                   100)
                                               .round())
                                       : "0",
-                                  style: TextStyle(fontSize: 25),
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
                                 )
                               ],
                             ),

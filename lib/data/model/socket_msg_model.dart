@@ -20,6 +20,9 @@ class SocketMsgModel {
   String? customerPhoneNumber;
   String? driverPhoneNumber;
   String? driverLicense;
+  int? price;
+  String? paymentMethod;
+  String? service;
 
   SocketMsgModel({
     this.driverName,
@@ -39,10 +42,16 @@ class SocketMsgModel {
     this.customerPosition,
     this.driverPosition,
     this.distance,
+    this.price,
+    this.paymentMethod,
+    this.service,
   });
 
   static SocketMsgModel fromJson(Map<String, dynamic> json) {
     return SocketMsgModel(
+      service: json['service'] ?? '',
+      paymentMethod: json['paymentMethod'] ?? '',
+      price: json['price'] ?? 0,
       driverName: json['driverName'] ?? '',
       customerName: json['customerName'] ?? '',
       customerPhoneNumber: json['customerPhoneNumber'] ?? '',
@@ -77,6 +86,9 @@ class SocketMsgModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'service': service,
+      'paymentMethod': paymentMethod,
+      'price': price,
       'driverName': driverName,
       'customerName': customerName,
       'driverPhoneNumber': driverPhoneNumber,

@@ -101,6 +101,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
         markerId: const MarkerId('currentLocation'),
         position: LatLng(position.latitude, position.longitude),
         infoWindow: const InfoWindow(title: 'Current Location'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ));
     });
   }
@@ -157,7 +158,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                     future: _fetchData,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text("Calculating distance...",
+                        return const Text("Loading...",
                             style: TextStyle(fontSize: 20));
                       } else if (snapshot.hasError) {
                         return Text("Error: ${snapshot.error}",
@@ -231,7 +232,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        widget.socketMsg?.distance
+                                        widget.socketMsg?.customerName
                                             as String, // Replace with your dynamic customer name
                                         style: const TextStyle(
                                             fontSize: 20,
@@ -345,6 +346,8 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                               ),
                               child: ConfirmButton(
                                   onPressed: () => {
+                                        widget.socket?.emit('start_ride',
+                                            widget.socketMsg?.toJson()),
                                         rideController.updateStatusById(
                                             widget.socketMsg?.rideId as String,
                                             RideStatus.moving),

@@ -72,7 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.8:3000',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -98,13 +98,16 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
             LatLng(currentPosition!.latitude, currentPosition!.longitude);
         socketMsg?.driverId = auth.currentUser?.uid;
         socketMsg?.driverSocketId = driverId;
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AcceptRideScreen(
-                      socket: socket,
-                      socketMsg: socketMsg,
-                    )));
+        if (isSwitchedOn) {
+          isSwitchedOn = false;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AcceptRideScreen(
+                        socket: socket,
+                        socketMsg: socketMsg,
+                      )));
+        }
       });
       print(msg);
     });
@@ -186,10 +189,22 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                             onTap: () {
                               setState(() {
                                 isSwitchedOn = !isSwitchedOn;
-
+                                if (isSwitchedOn && socketMsg != null) {
+                                  isSwitchedOn = false;
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              AcceptRideScreen(
+                                                socket: socket,
+                                                socketMsg: socketMsg!,
+                                              )));
+                                }
                                 if (isSwitchedOn) {
+                                  socket?.connect();
                                   updateProgressBar();
                                 } else {
+                                  socket?.disconnect();
                                   progressBarTimer?.cancel();
                                 }
                               });
@@ -211,29 +226,24 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                       right: 20,
                       left: 20,
                       child: Column(children: [
-
                         Container(
-                                alignment: Alignment.bottomCenter,
-                                width: MediaQuery.of(context).size.width,
-                                 padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                ),
-                                child:  Center(
-                            child: Text(
-                          isSwitchedOn
-                              ? 'Chế độ nhận chuyến đã được bật'
-                              : 'Chế độ nhận chuyến đã tắt',
-                          style: MyStyles.boldTextStyle,
-                        )),
+                          alignment: Alignment.bottomCenter,
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          child: Center(
+                              child: Text(
+                            isSwitchedOn
+                                ? 'Chế độ nhận chuyến đã được bật'
+                                : 'Chế độ nhận chuyến đã tắt',
+                            style: MyStyles.boldTextStyle,
+                          )),
                         ),
-
-
-
-                       
                         const SizedBox(height: 30),
                         isSwitchedOn
                             ? Container(

@@ -13,7 +13,7 @@ class RideController {
     RideModel ride = RideModel(
       customerId: msg.customerId as String,
       driverId: msg.driverId,
-      serviceId: "1",
+      service: msg.service as String,
       startLocation: AddressModel(
           coordinates:
               GeoPoint(msg.pickupPoint!.latitude, msg.pickupPoint!.longitude),
@@ -35,5 +35,9 @@ class RideController {
 
   Future<void> updateStatusById(String id, RideStatus status) async {
     rideRepo.updateStatusById(id, status);
+  }
+
+  Future<void> updateFareById(String id, int fare) async {
+    rideRepo.updateFareById(id, fare);
   }
 }

@@ -44,6 +44,13 @@ class RideRepository {
         .update({'status': status.name});
   }
 
+  Future<void> updateFareById(String id, int fare) {
+    return _firestore
+        .collection(RideModel.collectionName)
+        .doc(id)
+        .update({'fare': fare});
+  }
+
   /// Additional functions related to ride status, filtering, etc. can be added here
 
   /// Read rides for a specific customer
