@@ -71,14 +71,12 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.2:3000',
+      'http://192.168.1.13:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .build(),
     );
-
-    socket?.connect();
 
     socket?.onConnect((_) {
       print('Connected to server');
@@ -196,6 +194,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   void cancelRide() {
     progressBarTimer?.cancel();
     currentProgress = 0;
+    socket?.disconnect();
     rideController.updateStatusById(
         socketMsg?.rideId as String, RideStatus.cancel);
     setState(() {
@@ -213,6 +212,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
     String? distance,
     String? service,
   ) async {
+    socket?.connect();
     confirmRide = true;
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
