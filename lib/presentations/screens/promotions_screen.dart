@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/controller/auth_controller.dart';
-import 'package:grab/data/model/address_model.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/promotion_model.dart';
 import 'package:grab/presentations/widget/promotion_card.dart';
@@ -13,11 +11,12 @@ class PromotionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData _theme = Theme.of(context);
-    //retreive promotions
-    CustomerModel? customer = AuthController.instance.customer;
-    promotionList = customer!.promotions;
-    return Scaffold(
 
+    // Retrieve promotions
+    CustomerModel? customer = AuthController.instance.customer;
+    promotionList = customer?.promotions ?? [];
+
+    return Scaffold(
       body: SafeArea(
         child: Container(
           child: Column(
@@ -46,8 +45,9 @@ class PromotionsScreen extends StatelessWidget {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                       decoration: BoxDecoration(
-                          color: _theme.primaryColor,
-                          borderRadius: BorderRadius.circular(18.0)),
+                        color: _theme.primaryColor,
+                        borderRadius: BorderRadius.circular(18.0),
+                      ),
                       child: Row(
                         children: <Widget>[
                           Container(
@@ -80,10 +80,10 @@ class PromotionsScreen extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 14.0,
                             ),
-                          )
+                          ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -93,30 +93,45 @@ class PromotionsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Text(
-                      "My Promotions",
+                      "Các khuyến mãi hiện có",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      )
                     ),
                     SizedBox(
                       height: 15.0,
                     ),
-                    Container(
-                      height: 40.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xffF1F1F1),
-                        borderRadius: BorderRadius.circular(5.0),
+                    if (promotionList.isEmpty)
+                      Container(
+                        height: 40.0,
+                        decoration: BoxDecoration(
+                          color: Color(0xffF1F1F1),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Bạn chưa có khuyến mãi nào",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Text(""),
-                    )
                   ],
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: promotionList.length,
-                  itemBuilder: (context, index) {
-                    return PromotionCard(promotion: promotionList[index]);
-                  },
+              if (promotionList.isNotEmpty)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: promotionList.length,
+                    itemBuilder: (context, index) {
+                      return PromotionCard(promotion: promotionList[index]);
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
