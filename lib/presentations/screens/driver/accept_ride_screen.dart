@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:grab/controller/auth_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_pickup_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/presentations/widget/navbar_accept_ride.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/styles.dart';
+import 'package:grab/utils/helpers/formatter.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class AcceptRideScreen extends StatefulWidget {
@@ -24,15 +30,20 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   int selectedPaymentMethodIndex = -1;
   final String CASH_PAYMENT_NAME = 'cash';
   CustomerModel? fakerCustomerData;
-
-
+  RideController rideController = RideController();
   @override
   void initState() {
     super.initState();
   }
 
-  void acceptRide() {
+  void acceptRide() async {
+    widget.socketMsg?.driverName = AuthController.instance.driver?.name;
+    widget.socketMsg?.driverPhoneNumber =
+        AuthController.instance.driver?.phoneNumber;
+    widget.socketMsg?.driverLicense =
+        AuthController.instance.driver?.licenseNumber;
     widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
+
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return StartPickupScreen(
         socket: widget.socket,
@@ -44,10 +55,10 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   Widget buildCard(String imagePath, String text) {
     return Card(
       elevation: 0,
-      color: Color.fromARGB(255, 252, 251, 236),
+      color: const Color.fromARGB(255, 252, 251, 236),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0),
-        side: BorderSide(
+        side: const BorderSide(
             width: 2.0,
             color: Color.fromARGB(
                 255, 243, 233, 33) // Border color when the card is selected
@@ -56,16 +67,16 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Image(
             image: AssetImage(imagePath),
             width: 70,
             height: 70,
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Text(
             text,
-            style: TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 20),
           ),
         ],
       ),
@@ -74,6 +85,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -86,14 +98,18 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      NavBar(title: "Có chuyến xe mới", backText: "",),
+                      const NavBar(
+                        title: "Có chuyến xe mới",
+                        backText: "",
+                      ),
                       const SizedBox(height: 30),
                       const Text(
                         "Thông tin chuyến đi",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 30),
-                     SizedBox(
+                      SizedBox(
                         height: 130, // Set the desired height for the Row
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -118,7 +134,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment:
@@ -129,7 +145,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Vị trí bắt đầu",
                                         style: TextStyle(
                                             fontSize: 20,
@@ -158,7 +174,8 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                         ],
                                       ),
                                       Text(
-                                        widget.socketMsg?.destinationAddress ?? "",
+                                        widget.socketMsg?.destinationAddress ??
+                                            "",
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
@@ -172,9 +189,6 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                       const SizedBox(
                         width: 15,
                       ),
-                      
-
-
                       const SizedBox(
                         height: 200,
                       ),
@@ -197,12 +211,12 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Hình thức thanh toán",
                                       style: MyStyles.boldTextStyle,
                                     ),
                                     Text(
-                                      "Tiền mặt",
+                                      widget.socketMsg?.paymentMethod ?? "",
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],
@@ -214,12 +228,13 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Giá tiền",
                                       style: MyStyles.boldTextStyle,
                                     ),
                                     Text(
-                                      "100.000đ",
+                                      Formatter.VNDFormatter(
+                                          widget.socketMsg?.price as int),
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],
@@ -231,29 +246,12 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Khoảng cách",
                                       style: MyStyles.boldTextStyle,
                                     ),
                                     Text(
-                                      "10km",
-                                      style: MyStyles.boldTextStyle,
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Thời gian",
-                                      style: MyStyles.boldTextStyle,
-                                    ),
-                                    Text(
-                                      "20 phút",
+                                      widget.socketMsg?.distance as String,
                                       style: MyStyles.boldTextStyle,
                                     )
                                   ],
@@ -262,35 +260,34 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                             ),
                           )),
                       Expanded(
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: ConfirmButton(
-              onPressed: () => {acceptRide()},
-              text: "Từ chối",
-              color: Colors.red,
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: ConfirmButton(
-              onPressed: () => {acceptRide()},
-              text: "Đồng ý",
-            ),
-          ),
-        ],
-      ),
-      SizedBox(
-        height: 10,
-      ),
-    ],
-  ),
-)
-
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: ConfirmButton(
+                                    onPressed: () => {acceptRide()},
+                                    text: "Từ chối",
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: ConfirmButton(
+                                    onPressed: () => {acceptRide()},
+                                    text: "Đồng ý",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

@@ -2,16 +2,22 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/controller/ride_booking_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/customer_model.dart';
 import 'package:grab/data/model/payment_method_model.dart';
+import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/screens/driver/home_driver_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:grab/presentations/widget/nav_bar.dart';
+import 'package:grab/state.dart';
 import 'package:grab/utils/constants/icons.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
+import 'package:grab/utils/helpers/formatter.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class FinishRideScreen extends StatefulWidget {
@@ -29,6 +35,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
   final String CASH_PAYMENT_NAME = 'cash';
   PaymentMethodModel? fakerPaymentData;
   CustomerModel? fakerCustomerData;
+  RideController rideController = RideController();
   @override
   void initState() {
     super.initState();
@@ -79,6 +86,7 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(context);
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -97,11 +105,11 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            fakerCustomerData?.name ?? "",
+                            widget.socketMsg?.customerName as String,
                             style: MyStyles.boldTextStyle,
                           ),
                           Text(
-                            fakerCustomerData?.phoneNumber ?? "",
+                            widget.socketMsg?.customerPhoneNumber as String,
                             style: MyStyles.boldTextStyle,
                           )
                         ],
@@ -157,18 +165,20 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          const Text(
                                             "Vị trí kết thúc",
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text("5km",
-                                              style: TextStyle(
+                                          Text(
+                                              widget.socketMsg?.distance
+                                                  as String,
+                                              style: const TextStyle(
                                                 fontSize: 20,
                                               )),
                                         ],
@@ -219,38 +229,26 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                               ],
                             ),
                           )),
-                      const Column(
+                      Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 30,
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Tổng",
-                                  style: TextStyle(fontSize: 25),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Giá cước"),
-                                Text("\$200"),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Khuyến mãi"),
-                                Text("-\$5"),
-                              ],
-                            )
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Tổng",
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                  Text(
+                                    style: const TextStyle(fontSize: 25),
+                                    Formatter.VNDFormatter(
+                                        widget.socketMsg?.price as int),
+                                  )
+                                ]),
                           ]),
                       const SizedBox(
                         height: 30,
@@ -285,7 +283,19 @@ class _FinishRideScreenState extends State<FinishRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ConfirmButton(
-                              onPressed: () => {},
+                              onPressed: () => {
+                                    widget.socket?.emit('finish_ride',
+                                        widget.socketMsg?.toJson()),
+                                    rideController.updateFareById(
+                                        widget.socketMsg?.rideId as String,
+                                        widget.socketMsg?.price as int),
+                                    rideController.updateStatusById(
+                                        widget.socketMsg?.rideId as String,
+                                        RideStatus.completed),
+                                    widget.socket?.disconnect(),
+                                    Navigator.popUntil(context,
+                                        ModalRoute.withName('/home-driver'))
+                                  },
                               text: "Xác nhận hoàn tất chuyến đi"),
                           const SizedBox(
                             height: 10,

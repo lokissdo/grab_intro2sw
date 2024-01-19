@@ -4,8 +4,9 @@ import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/repository/ride_repository.dart';
 import 'package:grab/presentations/widget/ride_carts.dart';
 
-
 class MyRidesScreen extends StatefulWidget {
+  const MyRidesScreen({super.key});
+
   @override
   _MyRidesScreenState createState() => _MyRidesScreenState();
 }
@@ -33,13 +34,19 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<RideModel> completedRides = rideList.where((ride) => ride.status == RideStatus.completed).toList();
-    List<RideModel> upcomingRides = rideList.where((ride) =>ride.status == RideStatus.waiting || ride.status == RideStatus.moving).toList();
-    List<RideModel> canceledRides = rideList.where((ride) => ride.status == RideStatus.cancel).toList();
-    final ThemeData _theme = Theme.of(context);
+    List<RideModel> completedRides =
+        rideList.where((ride) => ride.status == RideStatus.completed).toList();
+    List<RideModel> upcomingRides = rideList
+        .where((ride) =>
+            ride.status == RideStatus.waiting ||
+            ride.status == RideStatus.moving)
+        .toList();
+    List<RideModel> canceledRides =
+        rideList.where((ride) => ride.status == RideStatus.cancel).toList();
+    final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: _theme.scaffoldBackgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         automaticallyImplyLeading: false,
         elevation: 0.0,
         leading: IconButton(
@@ -57,8 +64,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              "My rides",
-              //style: _theme.textTheme.title,
+              "Chuyến xe của tôi",
+              style: TextStyle(fontSize: 20),
+              // style: _theme.textTheme.title,
             ),
             SizedBox(
               height: 15.0,
@@ -71,12 +79,12 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   children: <Widget>[
                     TabBar(
                       unselectedLabelColor: Colors.grey,
-                      labelColor: _theme.primaryColor,
+                      labelColor: theme.primaryColor,
                       labelStyle: TextStyle(
                         fontSize: 15.0,
                         fontWeight: FontWeight.bold,
                       ),
-                      indicatorColor: _theme.primaryColor,
+                      indicatorColor: theme.primaryColor,
                       tabs: <Widget>[
                         Tab(
                           text: "UPCOMING",

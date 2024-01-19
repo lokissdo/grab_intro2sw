@@ -101,25 +101,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Where are you going?',
+                      const Text(
+                        'Bạn muốn đi đâu nè',
                         style: TextStyle(
                           fontSize: 26,
                           color: Colors.black,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Book on demand on pre-schedule rides',
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Hãy chọn vị trí nhé',
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Container(
-                        padding: EdgeInsets.only(left: 16),
+                        padding: const EdgeInsets.only(left: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: Colors.yellow),
@@ -130,24 +130,24 @@ class _HomeScreenState extends State<HomeScreen> {
                           textStyle: boldTextStyle(),
                           onChanged: (val) {
                             hideKeyboard(context);
-                            SearchDestinationceScreen().launch(context);
+                            const SearchDestinationceScreen().launch(context);
                           },
                           onTap: () {
                             hideKeyboard(context);
-                            SearchDestinationceScreen().launch(context);
+                            const SearchDestinationceScreen().launch(context);
                           },
                           decoration: InputDecoration(
-                            suffixIcon:
-                                Icon(Icons.search_outlined).paddingAll(12),
+                            suffixIcon: const Icon(Icons.search_outlined)
+                                .paddingAll(12),
                             border: InputBorder.none,
-                            hintText: 'Enter Destination',
+                            hintText: 'Nhập điểm đến',
                             hintStyle: boldTextStyle(
-                              color: Color(0xFF8d9cb2),
+                              color: const Color(0xFF8d9cb2),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.near_me,
                           color: Colors.blue,
                         ),

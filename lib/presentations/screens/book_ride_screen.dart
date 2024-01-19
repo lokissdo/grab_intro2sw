@@ -112,7 +112,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Choose a card'),
+          title: Text('Chọn xe'),
           content: Column(
             children: [
               for (int i = 0; i < services.length; i++)
@@ -169,30 +169,30 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
       },
       child: Card(
         elevation: 0,
-        color: Color.fromARGB(255, 252, 251, 236),
+        color: const Color.fromARGB(255, 252, 251, 236),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.0),
           side: BorderSide(
             width: 2.0,
             color: selectedPaymentMethodIndex == index
-                ? Color.fromARGB(
+                ? const Color.fromARGB(
                     255, 243, 233, 33) // Border color when the card is selected
-                : Color.fromARGB(255, 252, 251, 236),
+                : const Color.fromARGB(255, 252, 251, 236),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Image(
               image: AssetImage(imagePath),
               width: 70,
               height: 70,
             ),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Text(
               text,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
           ],
         ),
@@ -206,6 +206,21 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
     //   appState = Provider.of<AppState>(context);
     // });
 
+    appState = Provider.of<AppState>(context);
+    if (services.length == 0) {
+      appState.setPrice(0);
+    } else {
+      appState.setPrice(
+          FareCaculator.calc(distance, time, services[selectedCard]).round());
+      appState.setService(services[selectedCard].name);
+    }
+
+    if (selectedPaymentMethodIndex > -1) {
+      appState
+          .setPaymentMethod(paymentMethods[selectedPaymentMethodIndex].name);
+    }
+
+
     return Scaffold(
       body: SafeArea(
           child: Container(
@@ -218,7 +233,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      NavBar(title: "Đặt xe"),
+                      const NavBar(title: "Đặt xe"),
                       const SizedBox(height: 30),
                       SizedBox(
                         height: 130, // Set the desired height for the Row
@@ -245,7 +260,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment:
@@ -256,7 +271,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Vị trí bắt đầu",
                                         style: TextStyle(
                                             fontSize: 20,
@@ -333,6 +348,8 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                   String distanceText =
                                       "${snapshot.data?['distance']}"; // Use the correct key for distance
 
+                                  appState.setDistance(distanceText);
+
                                   return Text(
                                     distanceText,
                                     style: TextStyle(fontSize: 20),
@@ -347,7 +364,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            width: 270, // Adjust the width as needed
+                            width: 250, // Adjust the width as needed
                             child: VehicleCard(
                               title: (services.isNotEmpty)
                                   ? services[selectedCard].description
@@ -373,7 +390,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Áp dụng giảm giá!"),
+                          const Text("Áp dụng giảm giá!"),
                           IconButton(
                             onPressed: () async {
                               // Navigate to PromotionsScreen and wait for result
@@ -385,18 +402,18 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                                 ),
                               );
 
-                              
                               setState(() {
                                 // Handle the returned promotion percent
-                              if (selectedPromotionPercent != null) {
-                                // Use the selected promotion percent in your logic here
-                                discountPercent = selectedPromotionPercent;
-                              } else {
-                                discountPercent = 0.0;
-                              }
+                                if (selectedPromotionPercent != null) {
+                                  // Use the selected promotion percent in your logic here
+                                  discountPercent = selectedPromotionPercent;
+                                } else {
+                                  discountPercent = 0.0;
+                                }
+
                               });
                             },
-                            icon: Icon(
+                            icon: const Icon(
                               Icons
                                   .arrow_forward, // Replace with your desired icon
                               size: 24,
@@ -414,7 +431,7 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Khuyến mãi"),
+                                const Text("Khuyến mãi"),
                                 // Display discount amount based on discountPercent
                                 Text(discountPercent > 0 && services.isNotEmpty
                                     ? Formatter.VNDFormatter(
@@ -435,17 +452,28 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                               children: [
                                 Text(
                                   "Tổng",
-                                  style: TextStyle(fontSize: 25),
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                 services.isNotEmpty?Formatter.VNDFormatter(
-                                        ((FareCaculator.calc(distance, time,
-                                                        services[selectedCard])
-                                                    .round()) *
-                                                (100-discountPercent) /
-                                                100)
-                                            .round()):"0",
-                                  style: TextStyle(fontSize: 25),
+
+                                  services.isNotEmpty
+                                      ? Formatter.VNDFormatter(
+                                          ((FareCaculator.calc(
+                                                          distance,
+                                                          time,
+                                                          services[
+                                                              selectedCard])
+                                                      .round()) *
+                                                  (100 - discountPercent) /
+                                                  100)
+                                              .round())
+                                      : "0",
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+
                                 )
                               ],
                             ),
@@ -479,26 +507,26 @@ class _BookingRideScreenState extends State<BookingRideScreen> {
                         ],
                       ),
                       Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ConfirmButton(
-                              onPressed: selectedPaymentMethodIndex == -1
-                                  ? null // Disable the button if no payment method is selected
-                                  : () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              FindDriverScreen(),
-                                        ),
-                                      );
-                                    },
-                              text: "Xác nhận chuyến đi",
-                            ),
-                          ],
-                        ),
-                      )
+
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ConfirmButton(
+                            onPressed: selectedPaymentMethodIndex == -1
+                                ? null // Disable the button if no payment method is selected
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FindDriverScreen(),
+                                      ),
+                                    );
+                                  },
+                            text: "Xác nhận chuyến đi",
+                          ),
+                        ],
+                      ))
                     ],
                   ),
                 ),

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/controller/map_controller.dart';
+import 'package:grab/controller/ride_controller.dart';
+import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/start_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
@@ -35,7 +37,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
   late Timer timer;
   Position? currentPosition;
   Set<Marker> markers = {};
-
+  RideController rideController = RideController();
   void _addEventSocket() {
     widget.socket?.on('accept_ride', (msg) {
       widget.socketMsg = SocketMsgModel.fromJson(msg);
@@ -99,6 +101,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
         markerId: const MarkerId('currentLocation'),
         position: LatLng(position.latitude, position.longitude),
         infoWindow: const InfoWindow(title: 'Current Location'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ));
     });
   }
@@ -155,7 +158,7 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                     future: _fetchData,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text("Calculating distance...",
+                        return const Text("Loading...",
                             style: TextStyle(fontSize: 20));
                       } else if (snapshot.hasError) {
                         return Text("Error: ${snapshot.error}",
@@ -203,144 +206,151 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                       ),
                     ),
                     Visibility(
-                        visible:
-                            isContainerVisible, // Control visibility based on the state variable
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(4),
-                                  topRight: Radius.circular(20))),
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Customer name and number aligned to the left
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Customer Name", // Replace with your dynamic customer name
-                                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          "Customer Number", // Replace with your dynamic customer number
-                                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                                        ),
-                                      ],
-                                    ),
-
-                                    // Icons aligned to the right
-                                    Row(
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.message,
-                                              color: Colors.yellow,
-                                            ),
-                                            onPressed: () {
-                                              // Define the action when the button is pressed
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.local_phone,
-                                              color: Colors.yellow,
-                                            ),
-                                            onPressed: () {
-                                              // Define the action when the button is pressed
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              SizedBox(
-                                height:
-                                    130, // Set the desired height for the Row
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Column(
-                                      children: [
-                                        
-                                        SizedBox(height: 25),
-                                        Image(
-                                          image: AssetImage(
-                                              'assets/icons/location2.png'),
-                                          width: 25,
-                                          height: 25,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(height: 20),
-                                              const Text(
-                                                "Vị trí đón khách",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text(widget.socketMsg!
-                                                      .pickupAddress ??
-                                                  ''),
-                                            ],
-                                          ),
-                                          
-                                        ],
+                      visible:
+                          isContainerVisible, // Control visibility based on the state variable
+                      child: Container(
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(4),
+                                topRight: Radius.circular(20))),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Customer name and number aligned to the left
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.socketMsg?.customerName
+                                            as String, // Replace with your dynamic customer name
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      Text(
+                                        widget.socketMsg?.customerPhoneNumber
+                                            as String, // Replace with your dynamic customer number
+                                        style: const TextStyle(
+                                            fontSize: 16, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Icons aligned to the right
+                                  Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.message,
+                                            color: Colors.yellow,
+                                          ),
+                                          onPressed: () {
+                                            // Define the action when the button is pressed
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.local_phone,
+                                            color: Colors.yellow,
+                                          ),
+                                          onPressed: () {
+                                            // Define the action when the button is pressed
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 16),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.yellow),
-                                ),
-                                child: ConfirmButton(
+                            ),
+                            SizedBox(
+                              height: 130, // Set the desired height for the Row
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Column(
+                                    children: [
+                                      SizedBox(height: 25),
+                                      Image(
+                                        image: AssetImage(
+                                            'assets/icons/location2.png'),
+                                        width: 25,
+                                        height: 25,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 20),
+                                            const Text(
+                                              "Vị trí đón khách",
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(widget
+                                                    .socketMsg!.pickupAddress ??
+                                                ''),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.yellow),
+                              ),
+                              child: ConfirmButton(
                                   onPressed: () => {
+                                        widget.socket?.emit('start_ride',
+                                            widget.socketMsg?.toJson()),
+                                        rideController.updateStatusById(
+                                            widget.socketMsg?.rideId as String,
+                                            RideStatus.moving),
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -352,14 +362,13 @@ class _StartPickupScreen extends State<StartPickupScreen> {
                                                     )))
                                       },
                                   text: "Xác nhận đón khách"),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                         ),
                       ),
+                    ),
                     // Visibility widget containing the container
-                    
                   ],
                 ),
                 Positioned(

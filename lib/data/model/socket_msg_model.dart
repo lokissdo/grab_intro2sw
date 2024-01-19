@@ -1,8 +1,11 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:grab/data/model/customer_model.dart';
+import 'package:grab/data/model/driver_model.dart';
 
 class SocketMsgModel {
   String? customerId;
   String? driverId;
+  String? rideId;
   String? customerSocketId;
   String? driverSocketId;
   LatLng? pickupPoint;
@@ -11,8 +14,23 @@ class SocketMsgModel {
   String? destinationAddress;
   LatLng? customerPosition;
   LatLng? driverPosition;
+  String? distance;
+  String? driverName;
+  String? customerName;
+  String? customerPhoneNumber;
+  String? driverPhoneNumber;
+  String? driverLicense;
+  int? price;
+  String? paymentMethod;
+  String? service;
 
   SocketMsgModel({
+    this.driverName,
+    this.customerName,
+    this.customerPhoneNumber,
+    this.driverPhoneNumber,
+    this.driverLicense,
+    this.rideId,
     this.customerId,
     this.driverId,
     this.customerSocketId,
@@ -23,10 +41,24 @@ class SocketMsgModel {
     this.destinationAddress,
     this.customerPosition,
     this.driverPosition,
+    this.distance,
+    this.price,
+    this.paymentMethod,
+    this.service,
   });
 
   static SocketMsgModel fromJson(Map<String, dynamic> json) {
     return SocketMsgModel(
+      service: json['service'] ?? '',
+      paymentMethod: json['paymentMethod'] ?? '',
+      price: json['price'] ?? 0,
+      driverName: json['driverName'] ?? '',
+      customerName: json['customerName'] ?? '',
+      customerPhoneNumber: json['customerPhoneNumber'] ?? '',
+      driverPhoneNumber: json['driverPhoneNumber'] ?? '',
+      driverLicense: json['driverLicense'] ?? '',
+      distance: json['distance'] ?? '',
+      rideId: json['rideId'] ?? '',
       customerId: json['customerId'] ?? '',
       driverId: json['driverId'] ?? '',
       customerSocketId: json['customerSocketId'] ?? '',
@@ -54,6 +86,16 @@ class SocketMsgModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'service': service,
+      'paymentMethod': paymentMethod,
+      'price': price,
+      'driverName': driverName,
+      'customerName': customerName,
+      'driverPhoneNumber': driverPhoneNumber,
+      'customerPhoneNumber': customerPhoneNumber,
+      'driverLicense': driverLicense,
+      'distance': distance,
+      'rideId': rideId,
       'customerId': customerId,
       'driverId': driverId,
       'customerSocketId': customerSocketId,

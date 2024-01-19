@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/controller/map_controller.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/screens/driver/end_ride_screen.dart';
+import 'package:grab/presentations/screens/driver/finish_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -81,7 +82,7 @@ class _StartRideScreen extends State<StartRideScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => EndRideScreen(
+                builder: (context) => FinishRideScreen(
                       socketMsg: widget.socketMsg,
                       socket: widget.socket,
                     )));
@@ -97,6 +98,8 @@ class _StartRideScreen extends State<StartRideScreen> {
             markerId: const MarkerId('currentLocation'),
             position: points[index],
             infoWindow: const InfoWindow(title: 'Current Location'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
           ));
         });
 
@@ -182,11 +185,12 @@ class _StartRideScreen extends State<StartRideScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     // Customer name aligned to the left
-                                    const Align(
+                                    Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        "Customer Name", // Replace with your dynamic customer name
-                                        style: TextStyle(
+                                        widget.socketMsg?.distance
+                                            as String, // Replace with your dynamic customer name
+                                        style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -298,9 +302,12 @@ class _StartRideScreen extends State<StartRideScreen> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(widget.socketMsg!
-                                                      .pickupAddress ??
-                                                  '',overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                widget.socketMsg!
+                                                        .pickupAddress ??
+                                                    '',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                           Column(
@@ -319,13 +326,14 @@ class _StartRideScreen extends State<StartRideScreen> {
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  
                                                 ],
                                               ),
-                                              Text(widget.socketMsg!
-                                                      .destinationAddress ??
-                                                  '',
-                                                  overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                widget.socketMsg!
+                                                        .destinationAddress ??
+                                                    '',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                         ],
