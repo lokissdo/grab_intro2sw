@@ -72,7 +72,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.13:3000',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -97,6 +97,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
         socketMsg?.driverId = auth.currentUser?.uid;
         socketMsg?.driverSocketId = driverId;
         if (isSwitchedOn) {
+          progressBarTimer?.cancel();
           isSwitchedOn = false;
           Navigator.push(
               context,
@@ -187,17 +188,6 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                             onTap: () {
                               setState(() {
                                 isSwitchedOn = !isSwitchedOn;
-                                if (isSwitchedOn && socketMsg != null) {
-                                  isSwitchedOn = false;
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              AcceptRideScreen(
-                                                socket: socket,
-                                                socketMsg: socketMsg!,
-                                              )));
-                                }
                                 if (isSwitchedOn) {
                                   socket?.connect();
                                   updateProgressBar();

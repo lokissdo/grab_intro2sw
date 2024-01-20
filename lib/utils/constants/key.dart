@@ -1,4 +1,4 @@
 class MyKey {
   static const apiMapKey = 'AIzaSyAyvsDEmlta0a8fNv2eMyQJyGeSbLWTXwU';
-  static const apiGOONGMapKey = 'mZrlAg6Mw4B7nL4pV1XbU1SpefOMnfxnk1HkdyYe';
+  static const apiGOONGMapKey = 'gFtdtgZ3aa8HApOxuO42NskNMcDenLfnee3aMyIb';
 }

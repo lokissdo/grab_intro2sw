@@ -42,6 +42,16 @@ class _StartPickupScreen extends State<StartPickupScreen> {
     widget.socket?.on('accept_ride', (msg) {
       widget.socketMsg = SocketMsgModel.fromJson(msg);
     });
+
+    widget.socket?.on('cancel_ride', (customerId) {
+      if (customerId == widget.socketMsg!.customerId &&
+          widget.socket?.connected == true) {
+        widget.socketMsg!.customerId = '';
+        timer.cancel();
+        widget.socket?.disconnect();
+        Navigator.popUntil(context, ModalRoute.withName('/home-driver'));
+      }
+    });
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grab/data/model/feedback_model.dart';
 import 'package:grab/data/model/ride_model.dart';
 
 class RideRepository {
@@ -50,6 +51,13 @@ class RideRepository {
         .collection(RideModel.collectionName)
         .doc(id)
         .update({'fare': fare});
+  }
+
+  Future<void> updateFeedBackById(String id, FeedbackModel feedback) {
+    return _firestore
+        .collection(RideModel.collectionName)
+        .doc(id)
+        .update({'feedback': feedback.toJson()});
   }
 
   /// Additional functions related to ride status, filtering, etc. can be added here

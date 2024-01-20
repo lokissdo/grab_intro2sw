@@ -1,27 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FeedbackModel {
-  final double rating;
+  final int? rating;
   final String comment;
   final Timestamp createdAt;
 
   FeedbackModel({
-    required this.rating,
+    this.rating,
     required this.comment,
     required this.createdAt,
   });
   Map<String, dynamic> toJson() {
-  return {
-    "rating": rating,
-    "comment": comment,
-    "createdAt": createdAt,
-  };
-}
-  static FeedbackModel  fromJson(Map<String, dynamic> map) {
-  return FeedbackModel(
-    rating: map["rating"] as double,
-    comment: map["comment"],
-    createdAt: map["createdAt"] as Timestamp,
-  );
-}
+    return {
+      "rating": rating,
+      "comment": comment,
+      "createdAt": createdAt,
+    };
+  }
+
+  static FeedbackModel fromJson(Map<String, dynamic> map) {
+    int rating = map["rating"] == null ? 0 : map["rating"] as int;
+    return FeedbackModel(
+      rating: rating,
+      comment: map["comment"],
+      createdAt: map["createdAt"] as Timestamp,
+    );
+  }
 }

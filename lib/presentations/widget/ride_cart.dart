@@ -68,7 +68,9 @@ class RideCard extends StatelessWidget {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: const Text("Lí do hủy chuyến"),
-                              content: const Text("Anh ay toi tre"),
+                              content: Text(rideModel.feedback != null
+                                  ? rideModel.feedback!.comment
+                                  : ""),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {
@@ -117,7 +119,7 @@ class RideCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     const Text(
-                      "Price",
+                      "Giá cước",
                       style: TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,

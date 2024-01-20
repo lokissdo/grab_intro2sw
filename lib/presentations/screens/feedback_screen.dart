@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grab/controller/ride_controller.dart';
+import 'package:grab/data/model/feedback_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
@@ -17,6 +20,7 @@ class FeedBackScreen extends StatefulWidget {
 
 class _BookingRideScreenState extends State<FeedBackScreen> {
   int selectedStar = 0;
+  RideController rideController = RideController();
   final commentController = TextEditingController();
   String getFeedbackText() {
     switch (selectedStar) {
@@ -33,6 +37,16 @@ class _BookingRideScreenState extends State<FeedBackScreen> {
       default:
         return "Hãy đánh giá";
     }
+  }
+
+  void sendFeedBack() {
+    FeedbackModel feedback = FeedbackModel(
+        rating: selectedStar,
+        comment: commentController.text,
+        createdAt: Timestamp.now());
+
+    rideController.updateFeedBackById(widget.msg.rideId as String, feedback);
+    Navigator.popUntil(context, ModalRoute.withName('/home'));
   }
 
   @override
@@ -152,10 +166,7 @@ class _BookingRideScreenState extends State<FeedBackScreen> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 ConfirmButton(
-                                    onPressed: () => {
-                                          Navigator.popUntil(context,
-                                              ModalRoute.withName('/home'))
-                                        },
+                                    onPressed: () => {sendFeedBack()},
                                     text: "Gửi")
                               ],
                             )),
