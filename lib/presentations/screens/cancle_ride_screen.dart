@@ -1,4 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grab/controller/ride_controller.dart';
+import 'package:grab/data/model/feedback_model.dart';
+import 'package:grab/data/model/ride_model.dart';
+import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
@@ -6,14 +12,15 @@ import 'package:grab/presentations/widget/nav_bar.dart';
 import 'package:grab/utils/constants/styles.dart';
 
 class CancleRideScreen extends StatefulWidget {
-  const CancleRideScreen({Key? key}) : super(key: key);
+  String rideId;
+  CancleRideScreen({Key? key, required this.rideId}) : super(key: key);
 
   @override
   State<CancleRideScreen> createState() => _CancleRideScreenState();
 }
 
 class _CancleRideScreenState extends State<CancleRideScreen> {
-  int? selectedReasonIndex;
+  int selectedReasonIndex = -1;
   TextEditingController differentReasonController = TextEditingController();
   List<String> cancellationReasons = [
     "Thời gian chờ quá lâu",
@@ -34,7 +41,7 @@ class _CancleRideScreenState extends State<CancleRideScreen> {
         child: Column(
           children: [
             const SizedBox(
-              height: 10,
+              height: 8,
             ),
             Card(
                 elevation: 0,
@@ -70,6 +77,19 @@ class _CancleRideScreenState extends State<CancleRideScreen> {
         ));
   }
 
+  void handleCancelRide() {
+    RideController rideController = RideController();
+    FeedbackModel feedback = FeedbackModel(
+        comment: differentReasonController.text +
+            (selectedReasonIndex > -1
+                ? cancellationReasons[selectedReasonIndex]
+                : ""),
+        createdAt: Timestamp.now());
+    rideController.updateFeedBackById(widget.rideId, feedback);
+    rideController.updateStatusById(widget.rideId, RideStatus.cancel);
+    Navigator.popUntil(context, ModalRoute.withName("/home"));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +114,7 @@ class _CancleRideScreenState extends State<CancleRideScreen> {
                           for (int i = 0; i < cancellationReasons.length; i++)
                             buildCheckbox(i),
                           const SizedBox(
-                            height: 20,
+                            height: 12,
                           ),
                           Container(
                             padding: const EdgeInsets.all(8.0),
@@ -117,7 +137,9 @@ class _CancleRideScreenState extends State<CancleRideScreen> {
                           const SizedBox(
                             height: 20,
                           ),
-                          ConfirmButton(onPressed: () => {}, text: "Gửi")
+                          ConfirmButton(
+                              onPressed: () => {handleCancelRide()},
+                              text: "Gửi")
                         ]),
                   ))),
         ));

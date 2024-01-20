@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:grab/data/model/payment_method_model.dart';
-import 'package:grab/presentations/screens/cancle_ride_screem.dart';
+import 'package:grab/presentations/screens/cancle_ride_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/dashed_line_vertical_painter.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +11,6 @@ import 'package:grab/utils/constants/icons.dart';
 import 'package:grab/utils/constants/styles.dart';
 import 'package:grab/utils/constants/themes.dart';
 import 'package:nb_utils/nb_utils.dart';
-
-
 
 class InforDriverSearch extends StatelessWidget {
   InforDriverSearch({Key? key}) : super(key: key) {
@@ -30,10 +28,9 @@ class InforDriverSearch extends StatelessWidget {
     return [parts.first.trim(), parts.skip(1).join(',').trim()];
   }
 
+  // fake data
 
- // fake data
-
-  PaymentMethodModel paymentMethod = new PaymentMethodModel(
+  PaymentMethodModel paymentMethod = PaymentMethodModel(
       id: "1233",
       name: "momo",
       description: "MoMo",
@@ -44,7 +41,6 @@ class InforDriverSearch extends StatelessWidget {
       "The Global City, Đỗ Xuân Hợp, An Phú, Thủ Đức, Thành phố Hồ chí Minh";
   String endDestination = "419/25 Cách mạng tháng 8, P.13, Q.10, TPHCM";
 
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -53,17 +49,17 @@ class InforDriverSearch extends StatelessWidget {
       bottom: 20,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
-            padding: EdgeInsets.only(left: 10, right: 10),
+            padding: const EdgeInsets.only(left: 10, right: 10),
             decoration: BoxDecoration(
               borderRadius:
                   BorderRadius.circular(8.0), // Adjust the radius as needed
             ),
-            child: Column(
+            child: const Column(
               children: [
                 Center(child: ProgressBar(width: 30, height: 5)),
                 Row(
                   children: [
-                    const Image(
+                    Image(
                       image: AssetImage('assets/icons/grab_bike.png'),
                       width: 30,
                       height: 30,
@@ -86,11 +82,11 @@ class InforDriverSearch extends StatelessWidget {
                 )
               ],
             )),
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
         Container(
-            padding: EdgeInsets.only(left: 10, right: 10),
+            padding: const EdgeInsets.only(left: 10, right: 10),
             decoration: BoxDecoration(
               borderRadius:
                   BorderRadius.circular(8.0), // Adjust the radius as needed
@@ -104,7 +100,7 @@ class InforDriverSearch extends StatelessWidget {
                       width: 30,
                       height: 30,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -125,7 +121,7 @@ class InforDriverSearch extends StatelessWidget {
                     ))
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
@@ -135,7 +131,7 @@ class InforDriverSearch extends StatelessWidget {
                       width: 30,
                       height: 30,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -156,36 +152,36 @@ class InforDriverSearch extends StatelessWidget {
                     ))
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
                   children: [
-                     Image(
+                    Image(
                       image: AssetImage(IconPath.payment[paymentMethod.name]!),
                       width: 30,
                       height: 30,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(paymentMethod.description)
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                         onPressed: () {
                           // Add your close icon onPressed logic here
                           print('Close icon pressed');
-                          Get.to(const CancleRideScreen());
+                          // Get.to(const CancleRideScreen());
                         }),
-                    Text("Hủy chuyến")
+                    const Text("Hủy chuyến")
                   ],
                 )
               ],

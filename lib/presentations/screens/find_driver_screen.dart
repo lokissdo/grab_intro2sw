@@ -8,6 +8,7 @@ import 'package:grab/controller/map_controller.dart';
 import 'package:grab/controller/ride_controller.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
+import 'package:grab/presentations/screens/cancle_ride_screen.dart';
 import 'package:grab/presentations/screens/feedback_screen.dart';
 import 'package:grab/presentations/widget/confirm_button.dart';
 import 'package:grab/presentations/widget/progress_bar.dart';
@@ -71,7 +72,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.13:3000',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -85,6 +86,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
     socket?.on('accept_ride', (msg) {
       socketMsg = SocketMsgModel.fromJson(msg);
       socket?.emit('accept_ride', msg);
+      progressBarTimer?.cancel();
       setState(() {
         haveDriver = true;
       });
@@ -194,6 +196,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
   void cancelRide() {
     progressBarTimer?.cancel();
     currentProgress = 0;
+    socket?.emit('cancel_ride', socketMsg?.toJson());
     socket?.disconnect();
     rideController.updateStatusById(
         socketMsg?.rideId as String, RideStatus.cancel);
@@ -474,6 +477,29 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 16),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.yellow),
+                                ),
+                                child: ConfirmButton(
+                                    color: Colors.grey,
+                                    onPressed: () => {
+                                          socket?.emit('cancel_ride',
+                                              socketMsg?.toJson()),
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CancleRideScreen(
+                                                          rideId:
+                                                              socketMsg?.rideId
+                                                                  as String)))
+                                        },
+                                    text: "Hủy chuyến"),
+                              ),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -573,6 +599,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
+                          socket?.disconnect();
                           Navigator.pop(context);
                         },
                       ),

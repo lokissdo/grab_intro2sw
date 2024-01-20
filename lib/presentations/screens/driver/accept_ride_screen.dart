@@ -31,9 +31,22 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
   final String CASH_PAYMENT_NAME = 'cash';
   CustomerModel? fakerCustomerData;
   RideController rideController = RideController();
+
+  void addEventForSocket() {
+    widget.socket?.on('cancel_ride', (customerId) {
+      if (customerId == widget.socketMsg?.customerId &&
+          widget.socket?.connected == true) {
+        widget.socketMsg!.customerId = '';
+        Navigator.pop(context);
+        widget.socket?.disconnect();
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    addEventForSocket();
   }
 
   void acceptRide() async {
@@ -42,6 +55,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
         AuthController.instance.driver?.phoneNumber;
     widget.socketMsg?.driverLicense =
         AuthController.instance.driver?.licenseNumber;
+
     widget.socket?.emit('accept_ride', {widget.socketMsg?.toJson()});
 
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -268,7 +282,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
                               children: [
                                 Expanded(
                                   child: ConfirmButton(
-                                    onPressed: () => {acceptRide()},
+                                    onPressed: () => {Navigator.pop(context)},
                                     text: "Từ chối",
                                     color: Colors.red,
                                   ),

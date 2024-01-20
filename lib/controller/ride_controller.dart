@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grab/config/injection.dart';
 import 'package:grab/data/model/address_model.dart';
+import 'package:grab/data/model/feedback_model.dart';
 import 'package:grab/data/model/ride_model.dart';
 import 'package:grab/data/model/socket_msg_model.dart';
 import 'package:grab/data/repository/ride_repository.dart';
@@ -39,5 +40,9 @@ class RideController {
 
   Future<void> updateFareById(String id, int fare) async {
     rideRepo.updateFareById(id, fare);
+  }
+
+  Future<void> updateFeedBackById(String id, FeedbackModel feedback) async {
+    rideRepo.updateFeedBackById(id, feedback);
   }
 }
