@@ -72,7 +72,7 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
 
   void _initializeSocket() {
     socket = IO.io(
-      'http://192.168.1.2:3000',
+      'http://192.168.20.56:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -478,27 +478,28 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.yellow),
+                              if (startRide == false)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: Colors.yellow),
+                                  ),
+                                  child: ConfirmButton(
+                                      color: Colors.grey,
+                                      onPressed: () => {
+                                            socket?.emit('cancel_ride',
+                                                socketMsg?.toJson()),
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CancleRideScreen(
+                                                            rideId: socketMsg
+                                                                    ?.rideId
+                                                                as String)))
+                                          },
+                                      text: "Hủy chuyến"),
                                 ),
-                                child: ConfirmButton(
-                                    color: Colors.grey,
-                                    onPressed: () => {
-                                          socket?.emit('cancel_ride',
-                                              socketMsg?.toJson()),
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CancleRideScreen(
-                                                          rideId:
-                                                              socketMsg?.rideId
-                                                                  as String)))
-                                        },
-                                    text: "Hủy chuyến"),
-                              ),
                               const SizedBox(height: 16),
                             ],
                           ),
@@ -537,19 +538,20 @@ class _FindDriverScreenState extends State<FindDriverScreen> {
                               "Đang tìm tài xế...",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                            if (startRide == false)
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                child: const Text(
+                                  'Huỷ chuyến',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                ),
+                                onPressed: () {
+                                  cancelRide();
+                                },
                               ),
-                              child: const Text(
-                                'Huỷ chuyến',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 12),
-                              ),
-                              onPressed: () {
-                                cancelRide();
-                              },
-                            ),
                           ],
                         ),
                         ProgressBar(

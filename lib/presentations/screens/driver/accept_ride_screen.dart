@@ -37,7 +37,7 @@ class _FinishRideScreenState extends State<AcceptRideScreen> {
       if (customerId == widget.socketMsg?.customerId &&
           widget.socket?.connected == true) {
         widget.socketMsg!.customerId = '';
-        Navigator.pop(context);
+        Navigator.popUntil(context, ModalRoute.withName('/home-driver'));
         widget.socket?.disconnect();
       }
     });
